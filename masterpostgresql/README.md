@@ -1,5 +1,9 @@
 # How to run PostgreSQL
 
+# TO-DO:
+
+- Maybe add .sql file to initialize database.
+
 
 # Setting up Environment Variables and Running Docker Compose
 
@@ -19,7 +23,7 @@ Before you begin, ensure you have the following installed on your system:
 
    Modify these values according to your application's requirements.
 
-5. **Build and Run Docker Compose:**
+2. **Build and Run Docker Compose:**
    Run the following command to build and run your Docker Compose services:
    ```
    docker-compose up -d
@@ -27,7 +31,7 @@ Before you begin, ensure you have the following installed on your system:
 
    The `-d` flag runs the services in detached mode, meaning they run in the background.
 
-6. **Verify Deployment:**
+3. **Verify Deployment:**
    Once the services are up and running, you can verify the deployment by accessing your application through the specified host and port.
 
    You can check that the service is running using:
