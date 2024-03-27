@@ -1,5 +1,3 @@
-**README.md**
-
 # Running Redis with Docker Compose
 
 This guide will walk you through the process of running Redis using Docker Compose, with the option to set a password via a `.env` file.
