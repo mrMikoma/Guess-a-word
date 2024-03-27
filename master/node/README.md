@@ -59,7 +59,7 @@ Before you begin, ensure you have the following installed on your system:
 
    and stop Docker containers by typing:
    ```bash
-   docker stop <container>
+   docker stop <container_name>
    ```
 
 ## Additional Notes
