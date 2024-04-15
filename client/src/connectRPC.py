@@ -6,13 +6,13 @@ CLIENT = None
 
 def connectMasterNode(choice, USER_ID):
     # Asks for the server IP
-    redis_host = input("Enter the server IP: ")
+    master_ip = input("Enter the server IP: ")
     
     # Create a connection to the server if it does not exist
     global CLIENT
     if CLIENT is None:
         try:
-            CLIENT = grpc.insecure_channel(redis_host + ':50051')
+            CLIENT = grpc.insecure_channel(master_ip + ':50051')
             print("\nConnection established")
 
             # Ask for existing lobby or to create a new one:
