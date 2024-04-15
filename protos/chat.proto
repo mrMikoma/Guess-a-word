@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package chat;
+
+service ChatService {
+  // RPC for sending a message to a channel
+  rpc SendChannelMessage(ChannelMessage) returns (Status) {}
+
+  // RPC for getting channel messages (server-side streaming)
+  rpc GetChannelMessages (ChannelMessageRequest) returns (stream Message) {} 
+}
+
+message ChannelMessage {
+  string channel_id = 1;
+  string sender_id = 2;  
+  string content = 3; 
+}
+
+message ChannelMessageRequest {
+  string channel_id = 1;
+}
+
+message Message {
+  string sender_id = 1;
+  string content = 2;
+  int64 timestamp = 3; 
+}
+
+message Status {
+  bool success = 1;
+  string message = 2;
+}
