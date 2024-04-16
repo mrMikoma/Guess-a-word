@@ -2,10 +2,10 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-import chat_pb2 as chat__pb2
+import worker_pb2 as worker__pb2
 
 
-class ChatServiceStub(object):
+class WorkerServiceStub(object):
     """Missing associated documentation comment in .proto file."""
 
     def __init__(self, channel):
@@ -15,28 +15,33 @@ class ChatServiceStub(object):
             channel: A grpc.Channel.
         """
         self.SendChannelMessage = channel.unary_unary(
-                '/chat.ChatService/SendChannelMessage',
-                request_serializer=chat__pb2.ChannelMessage.SerializeToString,
-                response_deserializer=chat__pb2.Status.FromString,
+                '/worker.WorkerService/SendChannelMessage',
+                request_serializer=worker__pb2.ChannelMessage.SerializeToString,
+                response_deserializer=worker__pb2.Status.FromString,
                 )
         self.GetChannelMessages = channel.unary_stream(
-                '/chat.ChatService/GetChannelMessages',
-                request_serializer=chat__pb2.ChannelMessageRequest.SerializeToString,
-                response_deserializer=chat__pb2.Message.FromString,
+                '/worker.WorkerService/GetChannelMessages',
+                request_serializer=worker__pb2.ChannelMessageRequest.SerializeToString,
+                response_deserializer=worker__pb2.Message.FromString,
                 )
         self.JoinLobby = channel.unary_unary(
-                '/chat.ChatService/JoinLobby',
-                request_serializer=chat__pb2.LobbyInfo.SerializeToString,
-                response_deserializer=chat__pb2.PlayerInfo.FromString,
+                '/worker.WorkerService/JoinLobby',
+                request_serializer=worker__pb2.LobbyInfo.SerializeToString,
+                response_deserializer=worker__pb2.PlayerInfo.FromString,
                 )
         self.StartGame = channel.unary_unary(
-                '/chat.ChatService/StartGame',
-                request_serializer=chat__pb2.GameInfo.SerializeToString,
-                response_deserializer=chat__pb2.SecretWords.FromString,
+                '/worker.WorkerService/StartGame',
+                request_serializer=worker__pb2.GameInfo.SerializeToString,
+                response_deserializer=worker__pb2.SecretWords.FromString,
+                )
+        self.GetStatus = channel.unary_unary(
+                '/worker.WorkerService/GetStatus',
+                request_serializer=worker__pb2.Status.SerializeToString,
+                response_deserializer=worker__pb2.Status.FromString,
                 )
 
 
-class ChatServiceServicer(object):
+class WorkerServiceServicer(object):
     """Missing associated documentation comment in .proto file."""
 
     def SendChannelMessage(self, request, context):
@@ -67,37 +72,48 @@ class ChatServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def GetStatus(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
 
-def add_ChatServiceServicer_to_server(servicer, server):
+
+def add_WorkerServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'SendChannelMessage': grpc.unary_unary_rpc_method_handler(
                     servicer.SendChannelMessage,
-                    request_deserializer=chat__pb2.ChannelMessage.FromString,
-                    response_serializer=chat__pb2.Status.SerializeToString,
+                    request_deserializer=worker__pb2.ChannelMessage.FromString,
+                    response_serializer=worker__pb2.Status.SerializeToString,
             ),
             'GetChannelMessages': grpc.unary_stream_rpc_method_handler(
                     servicer.GetChannelMessages,
-                    request_deserializer=chat__pb2.ChannelMessageRequest.FromString,
-                    response_serializer=chat__pb2.Message.SerializeToString,
+                    request_deserializer=worker__pb2.ChannelMessageRequest.FromString,
+                    response_serializer=worker__pb2.Message.SerializeToString,
             ),
             'JoinLobby': grpc.unary_unary_rpc_method_handler(
                     servicer.JoinLobby,
-                    request_deserializer=chat__pb2.LobbyInfo.FromString,
-                    response_serializer=chat__pb2.PlayerInfo.SerializeToString,
+                    request_deserializer=worker__pb2.LobbyInfo.FromString,
+                    response_serializer=worker__pb2.PlayerInfo.SerializeToString,
             ),
             'StartGame': grpc.unary_unary_rpc_method_handler(
                     servicer.StartGame,
-                    request_deserializer=chat__pb2.GameInfo.FromString,
-                    response_serializer=chat__pb2.SecretWords.SerializeToString,
+                    request_deserializer=worker__pb2.GameInfo.FromString,
+                    response_serializer=worker__pb2.SecretWords.SerializeToString,
+            ),
+            'GetStatus': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetStatus,
+                    request_deserializer=worker__pb2.Status.FromString,
+                    response_serializer=worker__pb2.Status.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'chat.ChatService', rpc_method_handlers)
+            'worker.WorkerService', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
 
 
  # This class is part of an EXPERIMENTAL API.
-class ChatService(object):
+class WorkerService(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
@@ -111,9 +127,9 @@ class ChatService(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/chat.ChatService/SendChannelMessage',
-            chat__pb2.ChannelMessage.SerializeToString,
-            chat__pb2.Status.FromString,
+        return grpc.experimental.unary_unary(request, target, '/worker.WorkerService/SendChannelMessage',
+            worker__pb2.ChannelMessage.SerializeToString,
+            worker__pb2.Status.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -128,9 +144,9 @@ class ChatService(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_stream(request, target, '/chat.ChatService/GetChannelMessages',
-            chat__pb2.ChannelMessageRequest.SerializeToString,
-            chat__pb2.Message.FromString,
+        return grpc.experimental.unary_stream(request, target, '/worker.WorkerService/GetChannelMessages',
+            worker__pb2.ChannelMessageRequest.SerializeToString,
+            worker__pb2.Message.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -145,9 +161,9 @@ class ChatService(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/chat.ChatService/JoinLobby',
-            chat__pb2.LobbyInfo.SerializeToString,
-            chat__pb2.PlayerInfo.FromString,
+        return grpc.experimental.unary_unary(request, target, '/worker.WorkerService/JoinLobby',
+            worker__pb2.LobbyInfo.SerializeToString,
+            worker__pb2.PlayerInfo.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -162,8 +178,25 @@ class ChatService(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/chat.ChatService/StartGame',
-            chat__pb2.GameInfo.SerializeToString,
-            chat__pb2.SecretWords.FromString,
+        return grpc.experimental.unary_unary(request, target, '/worker.WorkerService/StartGame',
+            worker__pb2.GameInfo.SerializeToString,
+            worker__pb2.SecretWords.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def GetStatus(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/worker.WorkerService/GetStatus',
+            worker__pb2.Status.SerializeToString,
+            worker__pb2.Status.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package chat;
+package worker;
 
-service ChatService {
+service WorkerService {
   // RPC for sending a message to a channel
   rpc SendChannelMessage(ChannelMessage) returns (Status) {}
 
@@ -14,6 +14,8 @@ service ChatService {
 
   // RPC for the game admin to start the game.
   rpc StartGame (GameInfo) returns (SecretWords) {}
+
+  rpc GetStatus (Status) returns (Status) {}
 }
 
 message ChannelMessage {
