@@ -31,7 +31,7 @@ def main():
         elif option == "3":                            # Quit
             break
         elif option == "1000":
-            lobby_info = ["localhost", "0"]
+            lobby_info = ["localhost", 0]
             break
         else:
             print("Invalid option. Please try again.")
