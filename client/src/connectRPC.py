@@ -1,5 +1,5 @@
 import grpc
-from connectToMaster import *
+from src.connectToMaster import *
 
 # CONSTANTS
 CLIENT = None

@@ -22,7 +22,7 @@ Before you begin, ensure you have the following installed on your system:
 2. **Create a Python Virtual Environment:**
    Run the following commands in your terminal to create a Python virtual environment:
    ```bash
-   cd server/node/
+   cd worker/node/
    python3 -m venv venv
    ```
 
