@@ -19,7 +19,7 @@ def main():
     SCORE = []
     for player in PLAYERS:
         SCORE.append(0)
-    FILE = open("src/wordlist.txt", "r")
+    FILE = open("wordlist.txt", mode = "r")
     for i in range(random.randint(1, 104335)):
         WORD_TO_GUESS = FILE.readline()
 

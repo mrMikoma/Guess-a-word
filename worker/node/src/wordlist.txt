@@ -5430,7 +5430,7 @@ crescendo
 croissant
 crossfit
 crostini
-csårdås
+csárdás
 cumberlandinkastike
 cumberlandkastike
 cum laude
@@ -45885,7 +45885,6 @@ mamoilla
 mamselli
 mamu
 mana
-mana
 manaaja
 management
 manageri
@@ -45899,7 +45898,6 @@ manchegojuusto
 mandaatti
 mandaattialue
 mandala
-mandariini
 mandariini
 mandariinikiina
 mandoliini
