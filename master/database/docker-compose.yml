@@ -1,0 +1,50 @@
+version: '3' # Version of the Docker Compose file format
+
+# Define the services
+services:
+  # Define the database service
+  database:
+    # Official Postgres image from DockerHub
+    image: 'postgres:16'
+
+    # Define the environment variables
+    env_file:
+      - .env
+    
+    # Define the volumes
+    volumes:
+      - ./data:/var/lib/postgresql/data
+
+    # Set the network to the custom network
+    networks:
+      - db_network
+
+  # Define the adapter service
+  adapter:
+    # Build the adapter image from the Dockerfile in the adapter directory
+    build: ./adapter
+
+    # Wait for the database service to be ready before starting the adapter service
+    depends_on:
+      - database
+
+    # Define the environment variables
+    env_file:
+      - .env
+    
+    # Expose the adapter service on port 8080
+    ports:
+      - "8080:8080"
+
+    # Set the network to the custom network
+    networks:
+      - db_network
+      
+# Networks:
+# db_network  - a custom network for the database services
+# host        - for the adapter service to be able to be accessed from external services
+
+# Define a custom network for the database services
+networks:
+  db_network:
+    driver: bridge
