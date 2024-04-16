@@ -7,7 +7,13 @@ service ChatService {
   rpc SendChannelMessage(ChannelMessage) returns (Status) {}
 
   // RPC for getting channel messages (server-side streaming)
-  rpc GetChannelMessages (ChannelMessageRequest) returns (stream Message) {} 
+  rpc GetChannelMessages (ChannelMessageRequest) returns (stream Message) {}
+
+  // RPC to join a particular lobby in the worker node, returns information about player role.
+  rpc JoinLobby (LobbyInfo) returns (PlayerInfo) {}
+
+  // RPC for the game admin to start the game.
+  rpc StartGame (GameInfo) returns (SecretWords) {}
 }
 
 message ChannelMessage {
@@ -29,4 +35,21 @@ message Message {
 message Status {
   bool success = 1;
   string message = 2;
+}
+
+message LobbyInfo {
+  int64 lobby_id = 1;
+  string user_id = 2;
+}
+
+message PlayerInfo {
+  int64 player_role = 1;
+}
+
+message SecretWords {
+  string word = 1;
+}
+
+message GameInfo {
+  bool start = 1;
 }

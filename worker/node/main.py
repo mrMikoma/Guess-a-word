@@ -174,9 +174,10 @@ class ChatServiceServicer(chat_pb2_grpc.ChatServiceServicer):
 # Function for initializing data structures     
 def initialize():
     # Initialize CHANNELS
-    CHANNELS["general"] = set()
-    CHANNELS["coding"] = set()
-    CHANNELS["random"] = set()
+    #CHANNELS["general"] = set()
+    #CHANNELS["coding"] = set()
+    #CHANNELS["random"] = set()
+    CHANNELS["0"] = set()
     return 0
 
 def serve():

@@ -24,6 +24,16 @@ class ChatServiceStub(object):
                 request_serializer=chat__pb2.ChannelMessageRequest.SerializeToString,
                 response_deserializer=chat__pb2.Message.FromString,
                 )
+        self.JoinLobby = channel.unary_unary(
+                '/chat.ChatService/JoinLobby',
+                request_serializer=chat__pb2.LobbyInfo.SerializeToString,
+                response_deserializer=chat__pb2.PlayerInfo.FromString,
+                )
+        self.StartGame = channel.unary_unary(
+                '/chat.ChatService/StartGame',
+                request_serializer=chat__pb2.GameInfo.SerializeToString,
+                response_deserializer=chat__pb2.SecretWords.FromString,
+                )
 
 
 class ChatServiceServicer(object):
@@ -43,6 +53,20 @@ class ChatServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def JoinLobby(self, request, context):
+        """RPC to join a particular lobby in the worker node, returns information about player role.
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def StartGame(self, request, context):
+        """RPC for the game admin to start the game.
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_ChatServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -55,6 +79,16 @@ def add_ChatServiceServicer_to_server(servicer, server):
                     servicer.GetChannelMessages,
                     request_deserializer=chat__pb2.ChannelMessageRequest.FromString,
                     response_serializer=chat__pb2.Message.SerializeToString,
+            ),
+            'JoinLobby': grpc.unary_unary_rpc_method_handler(
+                    servicer.JoinLobby,
+                    request_deserializer=chat__pb2.LobbyInfo.FromString,
+                    response_serializer=chat__pb2.PlayerInfo.SerializeToString,
+            ),
+            'StartGame': grpc.unary_unary_rpc_method_handler(
+                    servicer.StartGame,
+                    request_deserializer=chat__pb2.GameInfo.FromString,
+                    response_serializer=chat__pb2.SecretWords.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -97,5 +131,39 @@ class ChatService(object):
         return grpc.experimental.unary_stream(request, target, '/chat.ChatService/GetChannelMessages',
             chat__pb2.ChannelMessageRequest.SerializeToString,
             chat__pb2.Message.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def JoinLobby(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/chat.ChatService/JoinLobby',
+            chat__pb2.LobbyInfo.SerializeToString,
+            chat__pb2.PlayerInfo.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def StartGame(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/chat.ChatService/StartGame',
+            chat__pb2.GameInfo.SerializeToString,
+            chat__pb2.SecretWords.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
