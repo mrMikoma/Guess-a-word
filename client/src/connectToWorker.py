@@ -1,8 +1,8 @@
 import worker_pb2
 import worker_pb2_grpc
-import connectRPC
+import src.connectRPC as connectRPC
 
-def sendLobbyInfoToWorker(lobby_choice, USER_ID, client):
+def sendLobbyInfoToWorker(lobby_id, USER_ID, client):
     # Create a channel stub
     try:
         client = client
@@ -14,13 +14,13 @@ def sendLobbyInfoToWorker(lobby_choice, USER_ID, client):
     
     # Send the message to the server, specifying if creating a new lobby or joining an existing.
     request = worker_pb2.LobbyInfo(
-        lobby_choice=lobby_choice,
+        lobby_id=lobby_id,
         user_id=USER_ID,
     )
     
     # Handle the response
     response = stub.JoinLobby(request)
-    if response.success:
+    if response:
         print("Received a response") # Debug
 
         print(response)
@@ -28,7 +28,7 @@ def sendLobbyInfoToWorker(lobby_choice, USER_ID, client):
 
         return response
     else:
-        print("Error: " + response.message)
+        print("Error: " + response)
         return 1
     
 def getStatus():

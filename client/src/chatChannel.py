@@ -1,6 +1,6 @@
 from src.connectRPC import *
-import chat_pb2
-import chat_pb2_grpc
+import worker_pb2
+import worker_pb2_grpc
 from datetime import datetime
 import threading 
 
@@ -20,7 +20,7 @@ def receive_messages(stub, channel_id, shutdown_event):
     while not shutdown_event.is_set():
         try: 
             # Get messages from the channel
-            request = chat_pb2.ChannelMessageRequest(channel_id=channel_id)
+            request = worker_pb2.ChannelMessageRequest(channel_id=channel_id)
             message_stream = stub.GetChannelMessages(request)
             
             # Print messages as they arrive
@@ -50,7 +50,7 @@ def send_message(stub, channel_id, sender_id, shutdown_event):
             break
 
         # Send the message to the server
-        request = chat_pb2.ChannelMessage(channel_id=channel_id, sender_id=sender_id, content=content)
+        request = worker_pb2.ChannelMessage(channel_id=channel_id, sender_id=sender_id, content=content)
         response = stub.SendChannelMessage(request)
         if not response.success:
             print("Error sending message:", response.message)
@@ -64,7 +64,7 @@ def connectToChatChannel(user_id):
     
     # Establish gRPC Connection
     client = getClient()
-    stub = chat_pb2_grpc.ChatServiceStub(client)
+    stub = worker_pb2_grpc.ChatServiceStub(client)
     
     # Print information about the channel
     print(f"\nConnected to channel {channel_id}")

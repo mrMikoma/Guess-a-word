@@ -174,7 +174,7 @@ class WorkerServiceServicer(worker_pb2_grpc.WorkerServiceServicer):
     def JoinLobby(self, request, context):
         user = request.user_id
         lobby = request.lobby_id
-        print(user + " is joining lobby: " + lobby)
+        print(user + " is joining lobby: " + str(lobby))
 
 
         return worker_pb2.PlayerInfo(player_role=1)

@@ -25,7 +25,7 @@ def connectMasterNode(choice, USER_ID):
             disconnectServer()
             return response
         except Exception as e:
-            print("\nError: Could not connect to server")
+            print("\nError: something went wrong when communicating with server. connectRPC.py")
             print(e)
             return 1
     else:
@@ -48,7 +48,7 @@ def connectWorkerNode(lobby_info, USER_ID):
 
             return 0
         except Exception as e:
-            print("\nError: Could not connect to server")
+            print("\nError: something went wrong when communicating with server. connectRPC.py")
             print(e)
             return 1
     else:
