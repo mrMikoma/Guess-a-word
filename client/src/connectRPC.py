@@ -39,10 +39,11 @@ def connectWorkerNode(lobby_info, USER_ID):
     global CLIENT
     if CLIENT is None:
         try:
-            CLIENT = grpc.insecure_channel(lobby_info[0] + lobby_info[1])
+            CLIENT = grpc.insecure_channel(lobby_info[0] + ':50051')
             print("\nConnection established")
 
             response = sendLobbyInfoToWorker(lobby_info[1], USER_ID, CLIENT)
+            print(response)
             # HERE should be something to join the lobby.
 
             return 0

@@ -6,8 +6,8 @@ import os
 import json
 from dotenv import load_dotenv
 
-import chat_pb2
-import chat_pb2_grpc
+import worker_pb2
+import worker_pb2_grpc
 
 ###
 # References:
@@ -29,18 +29,18 @@ load_dotenv()  # Load environment variables from .env
 # - Improve client connection closing handling
 ###
 
-class ChatServiceServicer(chat_pb2_grpc.ChatServiceServicer):
+class WorkerServiceServicer(worker_pb2_grpc.WorkerServiceServicer):
     def SendPrivateMessage(self, request, context):
         print("SendPrivateMessage") # Debug
         
         try:
             # Check if the sender and recipient are the same
             if request.sender_id == request.recipient_id:
-                return chat_pb2.Status(success=False, message="Sender and recipient cannot be the same")
+                return worker_pb2.Status(success=False, message="Sender and recipient cannot be the same")
             
             # Check if the message is empty
             if request.content == "":
-                return chat_pb2.Status(success=False, message="Message cannot be empty")
+                return worker_pb2.Status(success=False, message="Message cannot be empty")
             
             # Connect to Redis
             redis_client = redis.Redis(host=REDIS_HOST, port=6379, db=0, password=os.getenv('REDIS_PASSWORD'))
@@ -56,10 +56,10 @@ class ChatServiceServicer(chat_pb2_grpc.ChatServiceServicer):
             redis_client.rpush(redis_key, redis_object) # Append the message to the Redis list
 
             # Return status
-            return chat_pb2.Status(success=True, message="Message sent successfully")
+            return worker_pb2.Status(success=True, message="Message sent successfully")
         except Exception as e:
             print(e)  # Debug
-            return chat_pb2.Status(success=False, message="Error occurred")
+            return worker_pb2.Status(success=False, message="Error occurred")
 
     def GetPrivateMessages(self, request, context):
         print("GetPrivateMessages")  
@@ -85,11 +85,11 @@ class ChatServiceServicer(chat_pb2_grpc.ChatServiceServicer):
                 message_dict = json.loads(message_json)
                 
                 # Yield the message
-                yield chat_pb2.Message(sender_id=message_dict["sender_id"], content=message_dict["content"], timestamp=message_dict["timestamp"]) 
+                yield worker_pb2.Message(sender_id=message_dict["sender_id"], content=message_dict["content"], timestamp=message_dict["timestamp"]) 
 
         except Exception as e:
             print(e) 
-            return chat_pb2.Status(success=False, message="Error occurred")
+            return worker_pb2.Status(success=False, message="Error occurred")
         
     def SendChannelMessage(self, request, context):
         print("SendChannelMessage")
@@ -97,11 +97,11 @@ class ChatServiceServicer(chat_pb2_grpc.ChatServiceServicer):
         try: 
             # Check if the channel exists
             if request.channel_id not in CHANNELS:
-                return chat_pb2.Status(success=False, message="Channel does not exist")
+                return worker_pb2.Status(success=False, message="Channel does not exist")
             
             # Check if the message is empty
             if request.content == "":
-                return chat_pb2.Status(success=False, message="Message cannot be empty")
+                return worker_pb2.Status(success=False, message="Message cannot be empty")
             
             # Connect to Redis
             redis_client = redis.Redis(host=REDIS_HOST, port=6379, db=0, password=os.getenv('REDIS_PASSWORD'))
@@ -118,11 +118,11 @@ class ChatServiceServicer(chat_pb2_grpc.ChatServiceServicer):
             redis_client.zadd(redis_key, {redis_object: int(time.time())}) # Append the message to the Redis sorted set
             
             # Return status
-            return chat_pb2.Status(success=True, message="Message sent successfully")
+            return worker_pb2.Status(success=True, message="Message sent successfully")
         
         except Exception as e:
             print(e)
-            return chat_pb2.Status(success=False, message="Error occurred")
+            return worker_pb2.Status(success=False, message="Error occurred")
         
     def GetChannelMessages(self, request, context):
             print("GetChannelMessages")  
@@ -144,7 +144,7 @@ class ChatServiceServicer(chat_pb2_grpc.ChatServiceServicer):
                 for message, timestamp in messages: 
                     # Yield the message
                     message_dict = json.loads(message)
-                    yield chat_pb2.Message(sender_id=message_dict["sender_id"], content=message_dict["content"], timestamp=int(timestamp))
+                    yield worker_pb2.Message(sender_id=message_dict["sender_id"], content=message_dict["content"], timestamp=int(timestamp))
                     
                     # Store the last timestamp
                     last_timestamp = timestamp
@@ -157,7 +157,7 @@ class ChatServiceServicer(chat_pb2_grpc.ChatServiceServicer):
                     # Yield messages
                     for message, timestamp in messages:
                         message_dict = json.loads(message)
-                        yield chat_pb2.Message(sender_id=message_dict["sender_id"], content=message_dict["content"], timestamp=int(timestamp))
+                        yield worker_pb2.Message(sender_id=message_dict["sender_id"], content=message_dict["content"], timestamp=int(timestamp))
                         
                         # Store the last timestamp
                         last_timestamp = timestamp
@@ -165,11 +165,25 @@ class ChatServiceServicer(chat_pb2_grpc.ChatServiceServicer):
                     time.sleep(1)  # Sleep for 1 second before fetching the next message
                     
                 # Return status
-                return chat_pb2.Status(success=True, message="Channel connection closed")
+                return worker_pb2.Status(success=True, message="Channel connection closed")
 
             except Exception as e:
                 print(e) 
-                return chat_pb2.Status(success=False, message="Error occurred")
+                return worker_pb2.Status(success=False, message="Error occurred")
+            
+    def JoinLobby(self, request, context):
+        user = request.user_id
+        lobby = request.lobby_id
+        print(user + " is joining lobby: " + lobby)
+
+
+        return worker_pb2.PlayerInfo(player_role=1)
+    
+    def GetStatus(self, request, context):
+        print("Get status.")
+        print(request.success)
+        print(request.message)
+        return worker_pb2.Status(success=True, message="Worker is working.")
 
 # Function for initializing data structures     
 def initialize():
@@ -186,7 +200,7 @@ def serve():
     
     # Initialize the server
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=MAX_WORKERS))
-    chat_pb2_grpc.add_ChatServiceServicer_to_server(ChatServiceServicer(), server)
+    worker_pb2_grpc.add_WorkerServiceServicer_to_server(WorkerServiceServicer(), server)
     server.add_insecure_port('[::]:50051')
     server.start()
     try:
