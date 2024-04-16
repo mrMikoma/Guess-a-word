@@ -1,26 +1,25 @@
-from src.connectRPC import *
-import chat_pb2
-import chat_pb2_grpc
+import master_pb2
+import master_pb2_grpc
 from datetime import datetime
 
-def sendInformationToMaster(lobby_choice, USER_ID):
+def sendInformationToMaster(lobby_choice, USER_ID, client):
     # Create a channel stub
     try:
-        client = getClient()
-        stub = chat_pb2_grpc.ChatServiceStub(client)
+        client = client
+        stub = master_pb2_grpc.MasterServiceStub(client)
     except Exception as e:
         print("Error: connecting to server")
         print(e)
         return 1
     
     # Send the message to the server, specifying if creating a new lobby or joining an existing.
-    request = chat_pb2.PrivateMessage(
-        user_id=USER_ID,
+    request = master_pb2.LobbyInfo(
         lobby_choice=lobby_choice,
+        user_id=USER_ID,
     )
     
     # Handle the response
-    response = stub.SendPrivateMessage(request)
+    response = stub.SendLobbyInfo(request)
     if response.success:
         print("Received a response") # Debug
 

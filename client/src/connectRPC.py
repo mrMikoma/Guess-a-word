@@ -1,5 +1,6 @@
 import grpc
 from src.connectToMaster import *
+from src.connectToWorker import *
 
 # CONSTANTS
 CLIENT = None
@@ -17,9 +18,9 @@ def connectMasterNode(choice, USER_ID):
 
             # Ask for existing lobby or to create a new one:
             if choice == 1:
-                response = sendInformationToMaster(1, USER_ID)
+                response = sendInformationToMaster(1, USER_ID, CLIENT)
             elif choice == 2:
-                response = sendInformationToMaster(2, USER_ID)
+                response = sendInformationToMaster(2, USER_ID, CLIENT)
 
             disconnectServer()
             return response
@@ -38,9 +39,10 @@ def connectWorkerNode(lobby_info, USER_ID):
     global CLIENT
     if CLIENT is None:
         try:
-            CLIENT = grpc.insecure_channel(lobby_info.IP + ':50051')
+            CLIENT = grpc.insecure_channel(lobby_info[0] + lobby_info[1])
             print("\nConnection established")
 
+            response = sendLobbyInfoToWorker(lobby_info[1], USER_ID, CLIENT)
             # HERE should be something to join the lobby.
 
             return 0

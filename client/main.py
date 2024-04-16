@@ -1,6 +1,7 @@
 from src.menu import *
 from src.connectRPC import *
 from src.connectToMaster import *
+from src.connectToWorker import *
 from src.chatChannel import *
 
 ###
@@ -29,6 +30,9 @@ def main():
             break
         elif option == "3":                            # Quit
             break
+        elif option == "1000":
+            lobby_info = ["localhost", "50051"]
+            break
         else:
             print("Invalid option. Please try again.")
 
@@ -45,6 +49,8 @@ def main():
             disconnectServer() # Exit application.
             print("\nGoodbye!")
             break
+        elif option == "1000":
+            getStatus()
         else:
             print("Invalid option. Please try again.")
     
