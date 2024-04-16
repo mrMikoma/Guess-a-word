@@ -28,6 +28,9 @@ services:
     depends_on:
       - database
 
+    # Define restart policy
+    restart: on-failure
+
     # Define the environment variables
     env_file:
       - .env
