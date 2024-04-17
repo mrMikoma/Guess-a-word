@@ -19,18 +19,25 @@ def main():
     SCORE = []
     for player in PLAYERS:
         SCORE.append(0)
+<<<<<<< Updated upstream
     FILE = open('wordlist.txt', 'r')
     for i in range(random.randint(1, 104335)):
         WORD_TO_GUESS = FILE.readline()
+=======
+    FILE = open("worker/node/src/wordlist.txt", mode = "r", encoding = "UTF-8")
+>>>>>>> Stashed changes
 
     for i in range(3):
+        for j in range(random.randint(2, 104335)):
+            WORD_TO_GUESS = FILE.readline()[:-1]
         msg = "Round " + str(i + 1)
         send_message(PLAYERS[0], msg)
         guessed = []
         for player in PLAYERS:
             guessed.append(0)
-        private_message(WORD_TO_GUESS, PLAYERS[0])
-        msg = "The word is " + str(len(WORD_TO_GUESS)) + " letters long."
+        msg = "Word: " + WORD_TO_GUESS
+        private_message(msg, PLAYERS[0])
+        msg = "The word is " + str(len(WORD_TO_GUESS)) + " letters long.\n"
         send_message(PLAYERS[0], msg)
         remaining_players = len(PLAYERS) - 1 
         while remaining_players > 0:
@@ -57,6 +64,8 @@ def main():
         points = str(SCORE[i])
         msg = player + ": " + points
         print(msg)
+    
+    FILE.close()
 
 if __name__ == "__main__":
     main()
