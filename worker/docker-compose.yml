@@ -1,0 +1,58 @@
+version: '3' # Version of the Docker Compose file format
+
+# Define the services
+services:
+   # Database service
+  redis:
+    # Image of the container
+    image: redis:7.2.4-alpine # Image of redis
+    
+    # Restart the container always
+    restart: always # Restart the container always
+    
+    # Command to run the container
+    command: redis-server --save 60 1 --loglevel warning --requirepass ${REDIS_PASSWORD}
+
+    # Environment variables from .env file
+    env_file:
+      - .env 
+    
+    # Volumes for persisting data
+    volumes: 
+      - ./data:/data
+    
+    networks:
+      - redis_network
+
+  # Define the adapter service
+  node:
+    # Build the adapter image from the Dockerfile in the adapter directory
+    build: ./node
+
+    # Wait for the database service to be ready before starting the adapter service
+    depends_on:
+      - redis
+
+    # Define restart policy
+    restart: on-failure
+
+    # Define the environment variables
+    env_file:
+      - .env
+    
+    # Expose the adapter service on port 50052
+    ports:
+      - "50052:50052"
+
+    # Set the network to the custom network
+    networks:
+      - redis_network
+      
+# Networks:
+# redis_network  - a custom network for the redis services
+# host           - for the worker service to be able to be accessed from external services
+
+# Define a custom network for the database services
+networks:
+  redis_network:
+    driver: bridge
