@@ -1,25 +1,17 @@
-# Using python 3.12.2-bookworm as base image (change according to used Python version)
-FROM python:3.12.2-bookworm
+# Using python 3.12 as base image
+FROM python:3.12
 
 # Set the working directory in the container
-WORKDIR /master
+WORKDIR /node
 
-# Copy only the requirements file to leverage Docker cache
-COPY requirements.txt /master/
-
-# Create and activate a virtual environment
-RUN python3 -m venv venv
-ENV PATH="/master/venv/bin:$PATH"
+# Copy the current directory contents into the container at /node
+COPY . /node/
 
 # Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the rest of the application code
-COPY . /master/
-
-# Create a non-root user
-RUN useradd -m nonrootuser
-USER nonrootuser
+# Expose the port for the master gRPC server
+EXPOSE 50051
 
 # Run main.py when the container launches
-CMD ["python3", "main.py"]
+CMD ["python3", "./main.py"]

@@ -1,4 +1,4 @@
-# Initializing Python 3 and Pip Virtual Environment Project with Dockerfile
+# Initializing Python 3 and Pip Virtual Environment Project and with Dockerfile
 
 This guide will walk you through the process of initializing a Python 3 project with Pip's virtual environment (venv) and running it using Docker.
 
@@ -9,7 +9,7 @@ Before you begin, ensure you have the following installed on your system:
 - Docker: [Install Docker](https://docs.docker.com/get-docker/)
 - Python 3: [Install Python 3](https://www.python.org/downloads/)
 
-## Setup
+## venv Setup
 
 1. **Create a Python Virtual Environment:**
    Run the following command in your terminal to create a Python virtual environment:
@@ -34,38 +34,36 @@ Before you begin, ensure you have the following installed on your system:
    pip install -r requirements.txt
    ```
 
-4. **Build Docker Image:**
+## Docker Setup
+
+1. **Build Docker Image:**
    Run the following command to build the Docker image:
    ```bash
    docker build -t master .
    ```
 
-5. **Run Docker Container:**
+2. **Run Docker Container:**
    Execute the following command to run the Docker container:
    ```bash
-   docker run -p 4000:80 master
+   docker run -p 50051:50051 master
    ```
 
-   This command maps port 4000 of the host to port 80 of the Docker container. Adjust the port mapping as needed.
+   The master server uses port 50051. 
 
 6. **Access the Application:**
-   Once the container is running, you can access your application by ...
-
-7. **Stop the Application:**
-   You can see the Docker containers by typing:
+   Once the container is running, you can access your application by typing
    ```bash
    docker ps -a
    ```
 
-   and stop Docker containers by typing:
+7. **Stop the Application:**
+   Stop Docker containers by typing:
    ```bash
    docker stop <container_name>
    ```
 
 ## Additional Notes
 
-- Ensure that your Python dependencies are listed in the `requirements.txt` file.
-- Customize the `Dockerfile` as needed for your project requirements.
 - Don't forget to deactivate the virtual environment once you're done working on your project:
    ```bash
    deactivate
