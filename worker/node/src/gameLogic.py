@@ -19,13 +19,10 @@ def main():
     SCORE = []
     for player in PLAYERS:
         SCORE.append(0)
-<<<<<<< Updated upstream
-    FILE = open('wordlist.txt', 'r')
-    for i in range(random.randint(1, 104335)):
-        WORD_TO_GUESS = FILE.readline()
-=======
+
     FILE = open("worker/node/src/wordlist.txt", mode = "r", encoding = "UTF-8")
->>>>>>> Stashed changes
+    for i in range(random.randint(2, 104335)):
+        WORD_TO_GUESS = FILE.readline()
 
     for i in range(3):
         for j in range(random.randint(2, 104335)):
