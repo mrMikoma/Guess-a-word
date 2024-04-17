@@ -206,9 +206,14 @@ class WorkerServiceServicer(worker_pb2_grpc.WorkerServiceServicer):
                 yield response
 
     def SendMessage(self, request, context):
+        print("SendMessage is called!")
         lobby_id = request.lobby_id
         sender_id = request.sender_id
         content = request.content
+
+        print(lobby_id)
+        print(sender_id)
+        print(content)
         
         # Construct message string for Redis storage (e.g., "sender_id:content")
         message_data = f"{sender_id}:{content}"
