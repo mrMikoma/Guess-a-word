@@ -194,7 +194,9 @@ class WorkerServiceServicer(worker_pb2_grpc.WorkerServiceServicer):
         
         # Continuously listen for messages on lobby channel
         for message in self.pubsub.listen():
+            print("New message: " + message)
             if message['type'] == 'message':
+                print("Got here!")
                 message_data = message['data'].decode('utf-8')
                 # Extract sender_id and content from message
                 sender_id, content = message_data.split(':', 1)
@@ -203,6 +205,7 @@ class WorkerServiceServicer(worker_pb2_grpc.WorkerServiceServicer):
                     sender_id=sender_id,
                     content=content,
                 )
+                print(response)
                 yield response
 
     def SendMessage(self, request, context):
