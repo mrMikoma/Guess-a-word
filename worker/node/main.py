@@ -18,12 +18,13 @@ import worker_pb2_grpc
 
 # CONSTANTS
 MAX_WORKERS = 10
-REDIS_HOST = 'localhost'
+REDIS_HOST = os.getenv('REDIS_HOST') # In docker-compose.yml, the Redis service is named "redis"
+REDIS_PASSWORD = os.getenv('REDIS_PASSWORD')
 CHANNELS = {} 
 
 load_dotenv()  # Load environment variables from .env
 
-redis_client = redis.Redis(host=REDIS_HOST, port=6379, db=0, password=os.getenv('REDIS_PASSWORD'))
+redis_client = redis.Redis(host=REDIS_HOST, port=6379, db=0, password=REDIS_PASSWORD)
 
 ### TODO:
 # - Add private chat with bidirectional communication
