@@ -243,7 +243,7 @@ def serve():
     # Initialize the server
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=MAX_WORKERS))
     worker_pb2_grpc.add_WorkerServiceServicer_to_server(WorkerServiceServicer(), server)
-    server.add_insecure_port('[::]:50051')
+    server.add_insecure_port('[::]:50052')
     server.start()
     try:
         while True:
