@@ -6,7 +6,7 @@ def printInitMenu():
     return 0 
 
 def printGameMenu():
-    print("\n1. Send a message")
+    print("\n1. Start game")
     print("2. Quit game")
     return 0 
 

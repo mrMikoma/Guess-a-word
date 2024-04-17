@@ -23,6 +23,8 @@ CHANNELS = {}
 
 load_dotenv()  # Load environment variables from .env
 
+redis_client = redis.Redis(host=REDIS_HOST, port=6379, db=0, password=os.getenv('REDIS_PASSWORD'))
+
 ### TODO:
 # - Add private chat with bidirectional communication
 # - Add function to list all channels
@@ -30,6 +32,9 @@ load_dotenv()  # Load environment variables from .env
 ###
 
 class WorkerServiceServicer(worker_pb2_grpc.WorkerServiceServicer):
+    def __init__(self):
+        self.pubsub = redis_client.pubsub()
+   
     def SendPrivateMessage(self, request, context):
         print("SendPrivateMessage") # Debug
         
@@ -179,6 +184,41 @@ class WorkerServiceServicer(worker_pb2_grpc.WorkerServiceServicer):
 
         return worker_pb2.PlayerInfo(player_role=1)
     
+    def GetMessages(self, request, context):
+        lobby_id = request.lobby_id
+        
+        # Subscribe to lobby channel
+        lobby_channel = f"lobby:{lobby_id}"
+        self.pubsub.subscribe(lobby_channel)
+        
+        # Continuously listen for messages on lobby channel
+        for message in self.pubsub.listen():
+            if message['type'] == 'message':
+                message_data = message['data'].decode('utf-8')
+                # Extract sender_id and content from message
+                sender_id, content = message_data.split(':', 1)
+                # Create gRPC message object with sender_id, content, and timestamp
+                response = worker_pb2.Message(
+                    sender_id=sender_id,
+                    content=content,
+                )
+                yield response
+
+    def SendMessage(self, request, context):
+        lobby_id = request.lobby_id
+        sender_id = request.sender_id
+        content = request.content
+        
+        # Construct message string for Redis storage (e.g., "sender_id:content")
+        message_data = f"{sender_id}:{content}"
+        
+        # Publish message to lobby channel in Redis
+        lobby_channel = f"lobby:{lobby_id}"
+        redis_client.publish(lobby_channel, message_data.encode('utf-8'))
+        
+        return worker_pb2.Status(success=True, message="Message sent")
+
+    
     def GetStatus(self, request, context):
         print("Get status.")
         print(request.success)
@@ -187,10 +227,6 @@ class WorkerServiceServicer(worker_pb2_grpc.WorkerServiceServicer):
 
 # Function for initializing data structures     
 def initialize():
-    # Initialize CHANNELS
-    #CHANNELS["general"] = set()
-    #CHANNELS["coding"] = set()
-    #CHANNELS["random"] = set()
     CHANNELS["0"] = set()
     return 0
 

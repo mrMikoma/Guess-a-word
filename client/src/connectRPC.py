@@ -43,10 +43,10 @@ def connectWorkerNode(lobby_info, USER_ID):
             print("\nConnection established")
 
             response = sendLobbyInfoToWorker(lobby_info[1], USER_ID, CLIENT)
-            print(response)
+            
             # HERE should be something to join the lobby.
 
-            return 0
+            return response
         except Exception as e:
             print("\nError: something went wrong when communicating with server. connectRPC.py")
             print(e)

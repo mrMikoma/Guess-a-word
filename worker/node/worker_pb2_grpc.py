@@ -16,7 +16,7 @@ class WorkerServiceStub(object):
         """
         self.SendChannelMessage = channel.unary_unary(
                 '/worker.WorkerService/SendChannelMessage',
-                request_serializer=worker__pb2.ChannelMessage.SerializeToString,
+                request_serializer=worker__pb2.LobbyMessage.SerializeToString,
                 response_deserializer=worker__pb2.Status.FromString,
                 )
         self.GetChannelMessages = channel.unary_stream(
@@ -28,6 +28,16 @@ class WorkerServiceStub(object):
                 '/worker.WorkerService/JoinLobby',
                 request_serializer=worker__pb2.LobbyInfo.SerializeToString,
                 response_deserializer=worker__pb2.PlayerInfo.FromString,
+                )
+        self.GetMessages = channel.unary_stream(
+                '/worker.WorkerService/GetMessages',
+                request_serializer=worker__pb2.LobbyInfo.SerializeToString,
+                response_deserializer=worker__pb2.Message.FromString,
+                )
+        self.SendMessage = channel.unary_unary(
+                '/worker.WorkerService/SendMessage',
+                request_serializer=worker__pb2.LobbyMessage.SerializeToString,
+                response_deserializer=worker__pb2.Status.FromString,
                 )
         self.StartGame = channel.unary_unary(
                 '/worker.WorkerService/StartGame',
@@ -45,14 +55,14 @@ class WorkerServiceServicer(object):
     """Missing associated documentation comment in .proto file."""
 
     def SendChannelMessage(self, request, context):
-        """RPC for sending a message to a channel
+        """RPC for sending a message to a channel !! Most likely can be removed!
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def GetChannelMessages(self, request, context):
-        """RPC for getting channel messages (server-side streaming)
+        """RPC for getting channel messages (server-side streaming) !! Most likely can be removed!
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -61,6 +71,18 @@ class WorkerServiceServicer(object):
     def JoinLobby(self, request, context):
         """RPC to join a particular lobby in the worker node, returns information about player role.
         """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetMessages(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def SendMessage(self, request, context):
+        """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
@@ -83,7 +105,7 @@ def add_WorkerServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'SendChannelMessage': grpc.unary_unary_rpc_method_handler(
                     servicer.SendChannelMessage,
-                    request_deserializer=worker__pb2.ChannelMessage.FromString,
+                    request_deserializer=worker__pb2.LobbyMessage.FromString,
                     response_serializer=worker__pb2.Status.SerializeToString,
             ),
             'GetChannelMessages': grpc.unary_stream_rpc_method_handler(
@@ -95,6 +117,16 @@ def add_WorkerServiceServicer_to_server(servicer, server):
                     servicer.JoinLobby,
                     request_deserializer=worker__pb2.LobbyInfo.FromString,
                     response_serializer=worker__pb2.PlayerInfo.SerializeToString,
+            ),
+            'GetMessages': grpc.unary_stream_rpc_method_handler(
+                    servicer.GetMessages,
+                    request_deserializer=worker__pb2.LobbyInfo.FromString,
+                    response_serializer=worker__pb2.Message.SerializeToString,
+            ),
+            'SendMessage': grpc.unary_unary_rpc_method_handler(
+                    servicer.SendMessage,
+                    request_deserializer=worker__pb2.LobbyMessage.FromString,
+                    response_serializer=worker__pb2.Status.SerializeToString,
             ),
             'StartGame': grpc.unary_unary_rpc_method_handler(
                     servicer.StartGame,
@@ -128,7 +160,7 @@ class WorkerService(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/worker.WorkerService/SendChannelMessage',
-            worker__pb2.ChannelMessage.SerializeToString,
+            worker__pb2.LobbyMessage.SerializeToString,
             worker__pb2.Status.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
@@ -164,6 +196,40 @@ class WorkerService(object):
         return grpc.experimental.unary_unary(request, target, '/worker.WorkerService/JoinLobby',
             worker__pb2.LobbyInfo.SerializeToString,
             worker__pb2.PlayerInfo.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def GetMessages(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_stream(request, target, '/worker.WorkerService/GetMessages',
+            worker__pb2.LobbyInfo.SerializeToString,
+            worker__pb2.Message.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def SendMessage(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/worker.WorkerService/SendMessage',
+            worker__pb2.LobbyMessage.SerializeToString,
+            worker__pb2.Status.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 

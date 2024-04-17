@@ -1,6 +1,7 @@
 import worker_pb2
 import worker_pb2_grpc
 import src.connectRPC as connectRPC
+import src.chatChannel as chatChannel
 
 def sendLobbyInfoToWorker(lobby_id, USER_ID, client):
     # Create a channel stub
@@ -23,15 +24,15 @@ def sendLobbyInfoToWorker(lobby_id, USER_ID, client):
     if response:
         print("Received a response") # Debug
 
-        print(response)
-        # HERE response should be parsed and new IP and lobby ID returned to the connectRPC
+        print(response.player_role)
 
-        return response
+        return response.player_role
     else:
         print("Error: " + response)
         return 1
     
 def getStatus():
+
     try:
         client = connectRPC.getClient()
         stub = worker_pb2_grpc.WorkerServiceStub(client)
@@ -58,3 +59,10 @@ def getStatus():
     else:
         print("Error: " + response.message)
         return 1
+    
+def startGame(user_id, lobby_id):
+    client = connectRPC.getClient()
+    stub = worker_pb2_grpc.WorkerServiceStub(client)
+    
+    chatChannel.connectToChatChannel(user_id, lobby_id, stub)
+    return 0

@@ -3,14 +3,18 @@ syntax = "proto3";
 package worker;
 
 service WorkerService {
-  // RPC for sending a message to a channel
-  rpc SendChannelMessage(ChannelMessage) returns (Status) {}
+  // RPC for sending a message to a channel !! Most likely can be removed!
+  rpc SendChannelMessage(LobbyMessage) returns (Status) {}
 
-  // RPC for getting channel messages (server-side streaming)
+  // RPC for getting channel messages (server-side streaming) !! Most likely can be removed!
   rpc GetChannelMessages (ChannelMessageRequest) returns (stream Message) {}
 
   // RPC to join a particular lobby in the worker node, returns information about player role.
   rpc JoinLobby (LobbyInfo) returns (PlayerInfo) {}
+
+  rpc GetMessages (LobbyInfo) returns (stream Message) {}
+
+  rpc SendMessage (LobbyMessage) returns (Status) {}
 
   // RPC for the game admin to start the game.
   rpc StartGame (GameInfo) returns (SecretWords) {}
@@ -18,8 +22,8 @@ service WorkerService {
   rpc GetStatus (Status) returns (Status) {}
 }
 
-message ChannelMessage {
-  string channel_id = 1;
+message LobbyMessage {
+  int64 lobby_id = 1;
   string sender_id = 2;  
   string content = 3; 
 }
@@ -30,8 +34,7 @@ message ChannelMessageRequest {
 
 message Message {
   string sender_id = 1;
-  string content = 2;
-  int64 timestamp = 3; 
+  string content = 2; 
 }
 
 message Status {

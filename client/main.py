@@ -38,13 +38,16 @@ def main():
 
     # Now connect to the actual worker node/lobby with lobby_info
 
-    connectWorkerNode(lobby_info, USER_ID)
+    role = connectWorkerNode(lobby_info, USER_ID)
     while True:
         printGameMenu()
         option = input("Enter an option: ")
         if option == "1":
-            # Send message etc.
-            print("Remove this")
+            if role == 0:
+                print("Not working yet.")
+                # startGameAsAdmin()
+            else:
+                startGame(USER_ID, lobby_info[1])
         elif option == "2":
             disconnectServer() # Exit application.
             print("\nGoodbye!")
