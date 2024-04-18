@@ -4,19 +4,21 @@ import grpc
 import os
 import master_pb2_grpc
 import master_pb2
-import fastapi
 from dotenv import load_dotenv
+import requests
 
 # Global variables
 MAX_WORKERS = 10
-APP = fastapi.FastAPI()
 PORT = 50051
 WORKER_LOBBIES = {} # dictionary {worker:lobby_count} to track how many lobbies each worker has
+DB_ADDRESS="0.0.0.0:8080"
 
 load_dotenv()
 
 def AddAddNewLobbyToDB():
     # TODO
+    
+    request = requests.post(url=DB_ADDRESS, data={"key": "value"})
     print("added a new lobby!")
     return
 
@@ -40,11 +42,10 @@ class MasterServiceServicer(master_pb2_grpc.MasterServiceServicer):
 
 def initialize():
     # TODO
-    # clear up
+    # clear up worker
     return
     
 def serve():
-    # Initialize data structures
     initialize()
     
     # Initialize the server
@@ -54,7 +55,8 @@ def serve():
     server.start()
     try:
         while True:
-            print(f"Server is running on port {PORT}...")
+            print(f"Master
+                  is running on port {PORT}...")
             time.sleep(86400)  # One day
     except KeyboardInterrupt:
         server.stop(0)

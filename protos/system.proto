@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package system;
+
+service MasterService {
+    rpc SendLobbyInfo(LobbyInfo) returns (NewLobbyInfo) {}
+}
+
+message LobbyInfo {
+    int64 lobby_choice = 1;
+    string user_id = 2;
+}
+
+message NewLobbyInfo {
+    string IP = 1;
+    int64 lobby_id = 2;
+}
