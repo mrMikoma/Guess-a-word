@@ -3,13 +3,19 @@ import worker_pb2_grpc
 import src.connectRPC as connectRPC
 import src.chatChannel as chatChannel
 
+COLOR_GREEN = "\033[92m"  
+COLOR_YELLOW = "\033[93m"  
+COLOR_RED = "\033[91m"  
+COLOR_BLUE = '\033[34m'
+COLOR_RESET = "\033[0m"  # Reset color to default
+
 def sendLobbyInfoToWorker(lobby_id, USER_ID, client):
     # Create a channel stub
     try:
         client = client
         stub = worker_pb2_grpc.WorkerServiceStub(client)
     except Exception as e:
-        print("Error: connecting to server")
+        print(COLOR_RED + "Error: connecting to server" + COLOR_RESET)
         print(e)
         return 1
     
@@ -22,13 +28,9 @@ def sendLobbyInfoToWorker(lobby_id, USER_ID, client):
     # Handle the response
     response = stub.JoinLobby(request)
     if response:
-        print("Received a response") # Debug
-
-        print(response.player_role)
-
         return response.player_role
     else:
-        print("Error: " + response)
+        print(COLOR_RED + "Error: " + response + COLOR_RESET)
         return 1
     
 def getStatus():
@@ -36,7 +38,7 @@ def getStatus():
         client = connectRPC.getClient()
         stub = worker_pb2_grpc.WorkerServiceStub(client)
     except Exception as e:
-        print("Error: connecting to server")
+        print(COLOR_RED + "Error: connecting to server" + COLOR_RESET)
         print(e)
         return 1
     
@@ -49,18 +51,16 @@ def getStatus():
     # Handle the response
     response = stub.GetStatus(request)
     if response.success:
-        print("Received a response") # Debug
+        #print("Received a response") # Debug
 
         print(response)
-        # HERE response should be parsed and new IP and lobby ID returned to the connectRPC
-
         return response
     else:
-        print("Error: " + response.message)
+        print(COLOR_RED + "Error: " + response.message + COLOR_RESET)
         return 1
     
 def startGame(user_id, lobby_id):
-    print("Starting game.")
+    # print("Starting game.") # Debug.
     client = connectRPC.getClient()
     stub = worker_pb2_grpc.WorkerServiceStub(client)
     

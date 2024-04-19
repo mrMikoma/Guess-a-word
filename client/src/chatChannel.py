@@ -4,15 +4,16 @@ from datetime import datetime
 import threading 
 import grpc
 
+COLOR_GREEN = "\033[92m"  
+COLOR_YELLOW = "\033[93m"  
+COLOR_RED = "\033[91m"  
+COLOR_BLUE = '\033[34m'
+COLOR_RESET = "\033[0m"  # Reset color to default
+
 ### References:
 # - https://docs.python.org/3/library/threading.html
 # - https://grpc.io/docs/languages/python/basics/
 # - 
-###
-
-### TODO:
-# - Improve a way to exit the chat channel
-# - Improve error handling
 ###
 
 # Receive messages from the channel
@@ -28,15 +29,15 @@ def receive_messages(stub, lobby_id, user_id, shutdown_event):
             for message in message_stream:
                 # Print the message with a timestamp
                 timestamp = datetime.fromtimestamp(message.timestamp).strftime('%Y-%m-%d %H:%M:%S')
-                print(f"[{timestamp}] {message.sender_id}: {message.content}")
+                print(COLOR_GREEN + f"[{timestamp}] {message.sender_id}: {message.content}" + COLOR_RESET)
                 
                 # Check if the user wants to exit the channel
                 if shutdown_event.is_set():
                     break
         except grpc._channel._MultiThreadedRendezvous as e:        
-            print("\nChannel connection closed")
+            print(COLOR_RED + "\nChannel connection closed" + COLOR_RESET)
         except Exception as e:
-            print("Error receiving messages:", e)
+            print(COLOR_RED + "Error receiving messages:", e + COLOR_RESET)
             return 1
     
     return 0
@@ -54,15 +55,15 @@ def send_message(stub, lobby_id, user_id, shutdown_event):
         request = worker_pb2.LobbyMessage(lobby_id=lobby_id, sender_id=user_id, content=content)
         response = stub.SendChannelMessage(request)
         if not response.success:
-            print("Error sending message:", response.message)
+            print(COLOR_RED + "Error sending message: " + response.message + COLOR_RESET)
             
     return 0
 
 
 def connectToChatChannel(user_id, lobby_id, stub):
     # Print information about the lobby
-    print(f"\nConnected to lobby {lobby_id}")
-    print("Type 'exit' to leave the lobby\n")
+    print(COLOR_GREEN + f"\nConnected to lobby {lobby_id}" + COLOR_RESET)
+    print(COLOR_YELLOW + "Type 'exit' to leave the lobby\n" + COLOR_RESET)
     
     # Create an event to signal the threads to stop
     shutdown_event = threading.Event()

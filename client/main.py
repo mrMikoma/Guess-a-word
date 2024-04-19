@@ -10,18 +10,24 @@ from src.chatChannel import *
 #
 ###
 
+COLOR_GREEN = "\033[92m"  
+COLOR_YELLOW = "\033[93m"  
+COLOR_RED = "\033[91m"  
+COLOR_BLUE = '\033[34m'
+COLOR_RESET = "\033[0m"  # Reset color to default
+
 def main():
-    print("\n###################################################################")
-    print("Welcome to Guess a word! A world class videogame made just for you!")
-    print("###################################################################")
+    print(COLOR_BLUE + "\n###################################################################" + COLOR_RESET)
+    print(COLOR_BLUE + "Welcome to Guess a word! A world class videogame made just for you!" + COLOR_RESET)
+    print(COLOR_BLUE + "###################################################################" + COLOR_RESET)
     
     # Ask for the username
-    USER_ID = input("\nEnter your username: ")
+    USER_ID = input(COLOR_YELLOW + "\nEnter your username: " + COLOR_RESET)
     
     # Ask user if connecting to existing lobby or creating a new one.
     while True:
         printInitMenu()
-        option = input("Enter an option: ")
+        option = input(COLOR_YELLOW + "Enter an option: " + COLOR_RESET)
         if option == "1":
             lobby_info = connectMasterNode(1, USER_ID) # Connect to an existing lobby
             break
@@ -34,30 +40,30 @@ def main():
             lobby_info = ["localhost", 0]
             break
         else:
-            print("Invalid option. Please try again.")
+            print(COLOR_RED + "Invalid option. Please try again." + COLOR_RESET)
 
     # Now connect to the actual worker node/lobby with lobby_info
 
-    print("Connecting to worker node.")
+    # print("Connecting to worker node.") # Debug.
     role = connectWorkerNode(lobby_info, USER_ID)
     while True:
         printGameMenu()
-        option = input("Enter an option: ")
+        option = input(COLOR_YELLOW + "Enter an option: " + COLOR_RESET)
         if option == "1":
             if role == 0:
                 print("Not working yet.")
                 # startGameAsAdmin()
             else:
-                print("Starting game:")
+                print(COLOR_BLUE + "Starting game:" + COLOR_RESET)
                 startGame(USER_ID, lobby_info[1])
         elif option == "2":
             disconnectServer() # Exit application.
-            print("\nGoodbye!")
+            print(COLOR_BLUE + "\nGoodbye!" + COLOR_RESET)
             break
         elif option == "1000":
             getStatus()
         else:
-            print("Invalid option. Please try again.")
+            print(COLOR_RED + "Invalid option. Please try again." + COLOR_RESET)
     
     return 0
 
