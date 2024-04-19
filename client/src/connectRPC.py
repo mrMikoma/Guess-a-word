@@ -43,8 +43,6 @@ def connectWorkerNode(lobby_info, USER_ID):
             print("\nConnection established")
 
             response = sendLobbyInfoToWorker(lobby_info[1], USER_ID, CLIENT)
-            
-            # HERE should be something to join the lobby.
 
             return response
         except Exception as e:

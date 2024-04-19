@@ -24,7 +24,7 @@ CHANNELS = {}
 
 load_dotenv()  # Load environment variables from .env
 
-redis_client = redis.Redis(host=REDIS_HOST, port=6379, db=0, password=REDIS_PASSWORD)
+# redis_client = redis.Redis(host=REDIS_HOST, port=6379, db=0, password=REDIS_PASSWORD)
 
 ### TODO:
 # - Add private chat with bidirectional communication
@@ -33,8 +33,6 @@ redis_client = redis.Redis(host=REDIS_HOST, port=6379, db=0, password=REDIS_PASS
 ###
 
 class WorkerServiceServicer(worker_pb2_grpc.WorkerServiceServicer):
-    def __init__(self):
-        self.pubsub = redis_client.pubsub()
    
     def SendPrivateMessage(self, request, context):
         print("SendPrivateMessage") # Debug
@@ -102,7 +100,8 @@ class WorkerServiceServicer(worker_pb2_grpc.WorkerServiceServicer):
         
         try: 
             # Check if the channel exists
-            if request.channel_id not in CHANNELS:
+            print(CHANNELS)
+            if str(request.lobby_id) not in CHANNELS:
                 return worker_pb2.Status(success=False, message="Channel does not exist")
             
             # Check if the message is empty
@@ -114,7 +113,7 @@ class WorkerServiceServicer(worker_pb2_grpc.WorkerServiceServicer):
             #redis_client.flushall() # Debug (Clear all keys in Redis)
             
             # Store the message in Redis
-            redis_key = f"channel_messages:{request.channel_id}"  # Key format: channel_messages:<channel_id>
+            redis_key = f"channel_messages:{request.lobby_id}"  # Key format: channel_messages:<channel_id>
             redis_object = json.dumps({ # JSON object to store in Redis
                 "sender_id": request.sender_id,
                 "content": request.content,
@@ -141,7 +140,7 @@ class WorkerServiceServicer(worker_pb2_grpc.WorkerServiceServicer):
                 redis_client = redis.Redis(host=REDIS_HOST, port=6379, db=0, password=os.getenv('REDIS_PASSWORD'))
 
                 # Construct the Redis key for the channel
-                key = f"channel_messages:{request.channel_id}"  # Key format: channel_messages:<channel_id>
+                key = f"channel_messages:{request.lobby_id}"  # Key format: channel_messages:<channel_id>
                 
                 # Initial fetch
                 messages = redis_client.zrangebyscore(key, last_timestamp, '+inf', withscores=True)
@@ -226,7 +225,6 @@ class WorkerServiceServicer(worker_pb2_grpc.WorkerServiceServicer):
         redis_client.publish(lobby_channel, message_data.encode('utf-8'))
         
         return worker_pb2.Status(success=True, message="Message sent")
-
     
     def GetStatus(self, request, context):
         print("Get status.")

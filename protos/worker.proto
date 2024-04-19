@@ -29,12 +29,14 @@ message LobbyMessage {
 }
 
 message ChannelMessageRequest {
-  string channel_id = 1;
+  string lobby_id = 1;
 }
 
 message Message {
   string sender_id = 1;
   string content = 2; 
+  int64 timestamp = 3;
+
 }
 
 message Status {

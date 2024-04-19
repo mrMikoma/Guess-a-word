@@ -20,12 +20,15 @@ def receive_messages(stub, lobby_id, user_id, shutdown_event):
     while not shutdown_event.is_set():
         try: 
             # Get messages from the channel
-            request = worker_pb2.LobbyInfo(lobby_id=lobby_id, user_id=user_id )
-            message_stream = stub.GetMessages(request)
+            lobby_id = str(lobby_id)
+            request = worker_pb2.ChannelMessageRequest(lobby_id=lobby_id)
+            message_stream = stub.GetChannelMessages(request)
             
             # Print messages as they arrive
             for message in message_stream:
-                print(f"{message.sender_id}: {message.content}")
+                # Print the message with a timestamp
+                timestamp = datetime.fromtimestamp(message.timestamp).strftime('%Y-%m-%d %H:%M:%S')
+                print(f"[{timestamp}] {message.sender_id}: {message.content}")
                 
                 # Check if the user wants to exit the channel
                 if shutdown_event.is_set():
@@ -49,7 +52,7 @@ def send_message(stub, lobby_id, user_id, shutdown_event):
 
         # Send the message to the server
         request = worker_pb2.LobbyMessage(lobby_id=lobby_id, sender_id=user_id, content=content)
-        response = stub.SendMessage(request)
+        response = stub.SendChannelMessage(request)
         if not response.success:
             print("Error sending message:", response.message)
             

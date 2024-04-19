@@ -32,7 +32,6 @@ def sendLobbyInfoToWorker(lobby_id, USER_ID, client):
         return 1
     
 def getStatus():
-
     try:
         client = connectRPC.getClient()
         stub = worker_pb2_grpc.WorkerServiceStub(client)
@@ -61,6 +60,7 @@ def getStatus():
         return 1
     
 def startGame(user_id, lobby_id):
+    print("Starting game.")
     client = connectRPC.getClient()
     stub = worker_pb2_grpc.WorkerServiceStub(client)
     
