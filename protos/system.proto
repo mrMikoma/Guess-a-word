@@ -3,15 +3,21 @@ syntax = "proto3";
 package system;
 
 service MasterService {
-    rpc SendLobbyInfo(LobbyInfo) returns (NewLobbyInfo) {}
+    rpc CreateLobby(LobbyInfo) returns (NewLobbyInfo) {}
+    rpc UpdateLobby(OldLobbyInfo) return (NewLobbyInfo) {}
 }
 
 message LobbyInfo {
-    int64 lobby_choice = 1;
-    string user_id = 2;
+    // mitä parametrei worker tarttee?
 }
 
+
 message NewLobbyInfo {
-    string IP = 1;
-    int64 lobby_id = 2;
+    string lobby_id = 1;
+    string lobby_status = 2;
+
+}
+
+message OldLobbyInfo {
+    string OldLobbyInfo = 1;
 }

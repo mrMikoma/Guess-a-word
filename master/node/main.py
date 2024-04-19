@@ -24,7 +24,7 @@ def AddAddNewLobbyToDB():
 
 def JoinExistingLobby():
     # TODO
-    print("joined a new lobby")
+    print("joined a new lobby!")
     return
 class MasterServiceServicer(master_pb2_grpc.MasterServiceServicer): 
     
@@ -37,7 +37,7 @@ class MasterServiceServicer(master_pb2_grpc.MasterServiceServicer):
             ip, lobby_id = self.AddNewLobbyToDB()
         else:
             # wrong request, return default values 
-            pass
+            raise 
         return master_pb2.NewLobbyInfo(ip=ip, lobby_id=lobby_id)
 
 def initialize():
