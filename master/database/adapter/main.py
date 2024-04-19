@@ -20,19 +20,31 @@ app = FastAPI() # Create FastAPI instance
 """
 ### Postgres Database Adapter ###
 
-This adapter provides the following routes:
+This adapter provides the following routes for lobby management:
 - POST /lobbies/                - Create a new lobby
 - GET /lobbies/{lobby_id}       - Get a lobby by ID
 - PUT /lobbies/{lobby_id}       - Update a lobby by ID
 - DELETE /lobbies/{lobby_id}    - Delete a lobby by ID
+
+The adapter provides the following routes for worker management:
+- POST /workers/                - Create a new worker
+- GET /workers/                 - Get all workers
+- PUT /workers/{ip_address}     - Update a worker by ip_address
+- DELETE /workers/{ip_address}  - Delete a worker by ip_address
 
 Database Schema:
 - lobbies
     - lobby_id (SERIAL PRIMARY KEY)             # Unique 5-digit lobby ID
     - ip_address (VARCHAR)                      # IP address of the lobby
     - status (VARCHAR, default 'creating')      # Allowed statuses: creating, available, full, closed
-    
+- workers
+    - ip_address (PRIMARY KEY, VARCHAR, UNIQUE) # IP address of the worker
+    - status (VARCHAR, default 'available')     # Allowed statuses: available, error, offline
 """
+
+########################
+### HELPER FUNCTIONS ###
+########################
 
 # Helper function for database connections
 def get_db_connection():
@@ -47,13 +59,24 @@ def get_db_connection():
 def create_tables():
     with get_db_connection() as conn:
         with conn.cursor() as cur:
+            # Create workers table if it doesn't exist
+            cur.execute("""CREATE TABLE IF NOT EXISTS workers (ip_address VARCHAR(48) PRIMARY KEY UNIQUE, 
+                        status VARCHAR(48) NOT NULL DEFAULT 'available' CHECK (status IN ('available', 'error', 'offline')))""")
+            
+            # Create lobbies table if it doesn't exist
             cur.execute("""CREATE TABLE IF NOT EXISTS lobbies (lobby_id SERIAL PRIMARY KEY, ip_address VARCHAR(48), 
                         status VARCHAR(48) NOT NULL DEFAULT 'creating' CHECK (status IN ('creating', 'available', 'full', 'closed')))""")
+            
+            # Commit changes
             conn.commit()
             
 # Helper function to generate a random lobby ID
 def generate_lobby_id():
     return random.randint(10000, 99999)
+
+####################
+### LOBBY ROUTES ###
+####################
 
 # Route to create a new lobby
 @app.post("/lobbies/")
@@ -135,6 +158,66 @@ def delete_lobby(lobby_id: int):
             conn.commit()
             return {"status": "success"}
 
+#####################
+### WORKER ROUTES ###
+#####################
+
+# Route to create a new worker
+@app.post("/workers/")
+def create_worker(ip_address: str):
+    with get_db_connection() as conn:
+        with conn.cursor() as cur:
+            # Check if worker already exists
+            cur.execute("SELECT EXISTS(SELECT 1 FROM workers WHERE ip_address = %s)", (ip_address,))
+            if cur.fetchone()[0]:
+                raise HTTPException(status_code=400, detail="Worker already exists")
+            
+            # Insert worker with status 'available'
+            cur.execute("INSERT INTO workers (ip_address, status) VALUES (%s, 'available')", (ip_address,))
+            conn.commit()
+            return {"status": "success"}
+        
+# Route to get all workers
+@app.get("/workers/")
+def get_workers():
+    with get_db_connection() as conn:
+        with conn.cursor() as cur:
+            # Get all workers
+            cur.execute("SELECT * FROM workers")
+            workers = cur.fetchall()
+            return [{"ip_address": worker[0], "status": worker[1]} for worker in workers]
+        
+# Route to update a worker by ip_address
+@app.put("/workers/{ip_address}")
+def update_worker(ip_address: str, status: str):
+    with get_db_connection() as conn:
+        with conn.cursor() as cur:
+            # Check if worker exists
+            cur.execute("SELECT EXISTS(SELECT 1 FROM workers WHERE ip_address = %s)", (ip_address,))
+            if not cur.fetchone()[0]:
+                raise HTTPException(status_code=404, detail="Worker not found")
+            
+            # Update worker with new status
+            cur.execute("UPDATE workers SET status = %s WHERE ip_address = %s", (status, ip_address))
+            conn.commit()
+            return {"status": "success"}
+        
+# Route to delete a worker by ip_address
+@app.delete("/workers/{ip_address}")
+def delete_worker(ip_address: str):
+    with get_db_connection() as conn:
+        with conn.cursor() as cur:
+            # Check if worker exists
+            cur.execute("SELECT EXISTS(SELECT 1 FROM workers WHERE ip_address = %s)", (ip_address,))
+            if not cur.fetchone()[0]:
+                raise HTTPException(status_code=404, detail="Worker not found")
+            
+            # Delete worker by ip_address
+            cur.execute("DELETE FROM workers WHERE ip_address = %s", (ip_address,))
+            conn.commit()
+            return {"status": "success"}
+
+### MAIN FUNCTION ###
 # Start the server
 if __name__ == "__main__":
     create_tables() # Create tables if they don't exist
