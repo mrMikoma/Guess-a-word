@@ -149,7 +149,9 @@ class WorkerServiceServicer(worker_pb2_grpc.WorkerServiceServicer):
                 for message, timestamp in messages: 
                     # Yield the message
                     message_dict = json.loads(message)
-                    yield worker_pb2.Message(sender_id=message_dict["sender_id"], content=message_dict["content"], timestamp=int(timestamp))
+
+                    if message_dict["sender_id"] != request.user_id:
+                        yield worker_pb2.Message(sender_id=message_dict["sender_id"], content=message_dict["content"], timestamp=int(timestamp))
                     
                     # Store the last timestamp
                     last_timestamp = timestamp
@@ -162,12 +164,13 @@ class WorkerServiceServicer(worker_pb2_grpc.WorkerServiceServicer):
                     # Yield messages
                     for message, timestamp in messages:
                         message_dict = json.loads(message)
-                        yield worker_pb2.Message(sender_id=message_dict["sender_id"], content=message_dict["content"], timestamp=int(timestamp))
+                        if message_dict["sender_id"] != request.user_id:
+                            yield worker_pb2.Message(sender_id=message_dict["sender_id"], content=message_dict["content"], timestamp=int(timestamp))
                         
                         # Store the last timestamp
                         last_timestamp = timestamp
 
-                    time.sleep(1)  # Sleep for 1 second before fetching the next message
+                    time.sleep(0.1)  # Sleep for 1 second before fetching the next message
                     
                 # Return status
                 return worker_pb2.Status(success=True, message="Channel connection closed")

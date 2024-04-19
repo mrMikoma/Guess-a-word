@@ -21,7 +21,7 @@ def receive_messages(stub, lobby_id, user_id, shutdown_event):
         try: 
             # Get messages from the channel
             lobby_id = str(lobby_id)
-            request = worker_pb2.ChannelMessageRequest(lobby_id=lobby_id)
+            request = worker_pb2.ChannelMessageRequest(lobby_id=lobby_id, user_id=user_id)
             message_stream = stub.GetChannelMessages(request)
             
             # Print messages as they arrive

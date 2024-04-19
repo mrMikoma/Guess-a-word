@@ -30,6 +30,7 @@ message LobbyMessage {
 
 message ChannelMessageRequest {
   string lobby_id = 1;
+  string user_id = 2;
 }
 
 message Message {
