@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package worker;
+
+service WorkerService {
+    rpc NewLobby(LobbyInfo) returns (Status) {}
+    rpc JoinLobby(LobbyInfo) returns (Status) {}
+}
+
+message LobbyInfo {
+    string lobby_id = 1;
+}
+
+message Status {
+    string status = 1;
+    string desc = 2;
+}

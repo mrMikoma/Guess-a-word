@@ -18,3 +18,19 @@
    ```bash
    python3 -m grpc_tools.protoc -Iprotos --python_out=master/node --grpc_python_out=master/node protos/master.proto
    ```
+
+   ```bash
+   python3 -m grpc_tools.protoc -Iprotos --python_out=master/node --grpc_python_out=master/node protos/sys-master.proto
+   ```
+
+   ```bash
+   python3 -m grpc_tools.protoc -Iprotos --python_out=worker/node --grpc_python_out=worker/node protos/sys-master.proto
+   ```
+
+      ```bash
+   python3 -m grpc_tools.protoc -Iprotos --python_out=master/node --grpc_python_out=master/node protos/sys-worker.proto
+   ```
+
+   ```bash
+   python3 -m grpc_tools.protoc -Iprotos --python_out=worker/node --grpc_python_out=worker/node protos/sys-worker.proto
+   ```

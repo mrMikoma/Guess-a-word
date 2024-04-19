@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package master;
+
+service MasterService {
+    rpc UpdateLobby(NewLobbyInfo) returns (Status) {}
+}
+
+message NewLobbyInfo {
+    string lobby_id = 1;
+    string new_status = 2; 
+}
+
+message Status {
+    string status = 1;
+    string desc = 2;
+}
