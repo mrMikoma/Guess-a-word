@@ -55,8 +55,7 @@ def serve():
     server.start()
     try:
         while True:
-            print(f"Master
-                  is running on port {PORT}...")
+            print(f"Master is running on port {PORT}...")
             time.sleep(86400)  # One day
     except KeyboardInterrupt:
         server.stop(0)

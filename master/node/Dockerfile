@@ -14,4 +14,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 EXPOSE 50051
 
 # Run main.py when the container launches
-CMD ["python3", "./main.py"]
+CMD ["python3", "-u", "main.py"]
