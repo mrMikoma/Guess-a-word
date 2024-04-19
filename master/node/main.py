@@ -33,7 +33,7 @@ class MasterServiceServicer(master_pb2_grpc.MasterServiceServicer):
         lobby_id=-1
         if (request.lobby_choice == 1):
             ip, lobby_id = self.JoinExistingLobby()
-        elif(request.lobby_choise == 2):
+        elif(request.lobby_choice == 2):
             ip, lobby_id = self.AddNewLobbyToDB()
         else:
             # wrong request, return default values 
