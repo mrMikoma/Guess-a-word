@@ -69,6 +69,9 @@ def getClient():
 
 def disconnectServer():
     # Close the connection to the server
+
+    ## HERE SHOULD BE SOME COMMUNICATION FOR DISCONNECTING FROM THE SERVER.
+
     global CLIENT
     if CLIENT is not None:
         CLIENT.close()

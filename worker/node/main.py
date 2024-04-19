@@ -20,80 +20,15 @@ import worker_pb2_grpc
 MAX_WORKERS = 10
 REDIS_HOST = os.getenv('REDIS_HOST') # In docker-compose.yml, the Redis service is named "redis"
 REDIS_PASSWORD = os.getenv('REDIS_PASSWORD')
-CHANNELS = {} 
+CHANNELS = []
 
 load_dotenv()  # Load environment variables from .env
 
-# redis_client = redis.Redis(host=REDIS_HOST, port=6379, db=0, password=REDIS_PASSWORD)
-
 ### TODO:
-# - Add private chat with bidirectional communication
-# - Add function to list all channels
-# - Improve client connection closing handling
+
 ###
 
 class WorkerServiceServicer(worker_pb2_grpc.WorkerServiceServicer):
-   
-    def SendPrivateMessage(self, request, context):
-        print("SendPrivateMessage") # Debug
-        
-        try:
-            # Check if the sender and recipient are the same
-            if request.sender_id == request.recipient_id:
-                return worker_pb2.Status(success=False, message="Sender and recipient cannot be the same")
-            
-            # Check if the message is empty
-            if request.content == "":
-                return worker_pb2.Status(success=False, message="Message cannot be empty")
-            
-            # Connect to Redis
-            redis_client = redis.Redis(host=REDIS_HOST, port=6379, db=0, password=os.getenv('REDIS_PASSWORD'))
-            #redis_client.flushall() # Debug (Clear all keys in Redis)
-            
-            # Store the message in Redis
-            redis_key = f"private_messages:{request.recipient_id}"  # Key format: private_messages:<recipient_id>
-            redis_object = json.dumps({ # JSON object to store in Redis
-                "sender_id": request.sender_id,
-                "content": request.content,
-                "timestamp": int(time.time())
-            })
-            redis_client.rpush(redis_key, redis_object) # Append the message to the Redis list
-
-            # Return status
-            return worker_pb2.Status(success=True, message="Message sent successfully")
-        except Exception as e:
-            print(e)  # Debug
-            return worker_pb2.Status(success=False, message="Error occurred")
-
-    def GetPrivateMessages(self, request, context):
-        print("GetPrivateMessages")  
-
-        try:
-            # Connect to Redis
-            redis_client = redis.Redis(host=REDIS_HOST, port=6379, db=0, password=os.getenv('REDIS_PASSWORD'))
-
-            # Construct the Redis keys for both directions of the conversation
-            key1 = f"private_messages:{request.sender_id}"  # Where the user is the recipient
-            key2 = f"private_messages:{request.recipient_id}" # Where the user is the sender
-
-            # Fetch messages from Redis using LRANGE
-            messages = redis_client.lrange(key1, 0, -1) + redis_client.lrange(key2, 0, -1)
-            
-            # Parse messages only between the sender and recipient
-            #messages = [message for message in messages if json.loads(message)["user_id"] == request.sender_id or json.loads(message)["user_id"] == request.recipient_id]
-            messages = [message for message in messages if json.loads(message)["sender_id"] in {request.sender_id, request.recipient_id}]
-
-            # Yield individual messages
-            for message_json in messages:
-                # Parse the JSON object
-                message_dict = json.loads(message_json)
-                
-                # Yield the message
-                yield worker_pb2.Message(sender_id=message_dict["sender_id"], content=message_dict["content"], timestamp=message_dict["timestamp"]) 
-
-        except Exception as e:
-            print(e) 
-            return worker_pb2.Status(success=False, message="Error occurred")
         
     def SendChannelMessage(self, request, context):
         print("SendChannelMessage")
@@ -101,7 +36,7 @@ class WorkerServiceServicer(worker_pb2_grpc.WorkerServiceServicer):
         try: 
             # Check if the channel exists
             print(CHANNELS)
-            if str(request.lobby_id) not in CHANNELS:
+            if len(CHANNELS) < request.lobby_id:
                 return worker_pb2.Status(success=False, message="Channel does not exist")
             
             # Check if the message is empty
@@ -180,64 +115,50 @@ class WorkerServiceServicer(worker_pb2_grpc.WorkerServiceServicer):
                 return worker_pb2.Status(success=False, message="Error occurred")
             
     def JoinLobby(self, request, context):
+        print("JoinLobby")
         user = request.user_id
         lobby = request.lobby_id
         print(user + " is joining lobby: " + str(lobby))
+        
+        if len(CHANNELS) >= lobby + 1:
+            print("Lobby exists.")
+
+            # Add player to the lobby. 
+            user_list = CHANNELS[lobby]
+            print("Lobby alreade has these players: ")
+            for user_in_list in user_list:
+                print(user_in_list, end=", ")
+            print()
+            # If player is first, let's make them the admin. 
+            if len(user_list) == 0:
+                player_role = 0
+            else:
+                player_role = 1
+            user_list.append(user)
+            print(user + " joined lobby: " + str(lobby))
 
 
-        return worker_pb2.PlayerInfo(player_role=1)
-    
-    def GetMessages(self, request, context):
-        lobby_id = request.lobby_id
-        
-        # Subscribe to lobby channel
-        lobby_channel = f"lobby:{lobby_id}"
-        self.pubsub.subscribe(lobby_channel)
-        
-        # Continuously listen for messages on lobby channel
-        for message in self.pubsub.listen():
-            print("New message: " + message)
-            if message['type'] == 'message':
-                print("Got here!")
-                message_data = message['data'].decode('utf-8')
-                # Extract sender_id and content from message
-                sender_id, content = message_data.split(':', 1)
-                # Create gRPC message object with sender_id, content, and timestamp
-                response = worker_pb2.Message(
-                    sender_id=sender_id,
-                    content=content,
-                )
-                print(response)
-                yield response
-
-    def SendMessage(self, request, context):
-        print("SendMessage is called!")
-        lobby_id = request.lobby_id
-        sender_id = request.sender_id
-        content = request.content
-
-        print(lobby_id)
-        print(sender_id)
-        print(content)
-        
-        # Construct message string for Redis storage (e.g., "sender_id:content")
-        message_data = f"{sender_id}:{content}"
-        
-        # Publish message to lobby channel in Redis
-        lobby_channel = f"lobby:{lobby_id}"
-        redis_client.publish(lobby_channel, message_data.encode('utf-8'))
-        
-        return worker_pb2.Status(success=True, message="Message sent")
+        return worker_pb2.PlayerInfo(player_role=player_role)
     
     def GetStatus(self, request, context):
         print("Get status.")
         print(request.success)
         print(request.message)
         return worker_pb2.Status(success=True, message="Worker is working.")
+    
+    def StartGame(self, request, context):
+        print("StartGame")
+
+        # Samuel can implement here how the secret word is decided.
+
+        print("A game starts.")
+        if request.start:
+            return worker_pb2.SecretWords(word="salasana")
 
 # Function for initializing data structures     
 def initialize():
-    CHANNELS["0"] = set()
+    lobby0 = []
+    CHANNELS.append(lobby0)
     return 0
 
 def serve():
@@ -252,7 +173,7 @@ def serve():
     try:
         while True:
             print("Server is running...")
-            time.sleep(86400)  # One day
+            time.sleep(60)  # One minute
     except KeyboardInterrupt:
         server.stop(0)
 

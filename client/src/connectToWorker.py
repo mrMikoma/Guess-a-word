@@ -30,7 +30,7 @@ def sendLobbyInfoToWorker(lobby_id, USER_ID, client):
     if response:
         return response.player_role
     else:
-        print(COLOR_RED + "Error: " + response + COLOR_RESET)
+        print(COLOR_RED + "Error: ", response + COLOR_RESET)
         return 1
     
 def getStatus():
@@ -66,3 +66,28 @@ def startGame(user_id, lobby_id):
     
     chatChannel.connectToChatChannel(user_id, lobby_id, stub)
     return 0
+
+def startGameAsAdmin(user_id, lobby_id):
+    try:
+        client = connectRPC.getClient()
+        stub = worker_pb2_grpc.WorkerServiceStub(client)
+    except Exception as e:
+        print(COLOR_RED + "Error: connecting to server" + COLOR_RESET)
+        print(e)
+        return 1
+    
+    # Send the message to the server, specifying if creating a new lobby or joining an existing.
+    request = worker_pb2.GameInfo(
+        start=True,
+    )
+    
+    # Handle the response
+    response = stub.StartGame(request)
+    if response:
+        #print("Received a response") # Debug
+        print(COLOR_BLUE + "Your secret word is: " + response.word + COLOR_RESET)
+        chatChannel.connectToChatChannel(user_id, lobby_id, stub)
+    else:
+        print(COLOR_RED + "Error: " + response.message + COLOR_RESET)
+        return 1
+

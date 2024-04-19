@@ -51,8 +51,7 @@ def main():
         option = input(COLOR_YELLOW + "Enter an option: " + COLOR_RESET)
         if option == "1":
             if role == 0:
-                print("Not working yet.")
-                # startGameAsAdmin()
+                startGameAsAdmin(USER_ID, lobby_info[1])
             else:
                 print(COLOR_BLUE + "Starting game:" + COLOR_RESET)
                 startGame(USER_ID, lobby_info[1])
