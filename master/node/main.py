@@ -6,13 +6,15 @@ import master_pb2_grpc
 import master_pb2
 import sys_master_pb2_grpc
 import sys_master_pb2
+import sys_worker_pb2_grpc
+import sys_worker_pb2
 from dotenv import load_dotenv
 import requests
 
 # Global variables
 MAX_WORKERS = 10
 PORT = 50051
-WORKER_LOBBIES = {} # dictionary {worker:[lobby_id]} to track how many lobbies each worker has
+WORKER_LOBBIES = {} # dictionary {worker_ip:lobby_count} to track how many lobbies each worker has
 DB_ADDRESS="http://0.0.0.0:8080"
 
 load_dotenv()
@@ -27,8 +29,19 @@ class MasterServiceServicer(master_pb2_grpc.MasterServiceServicer, sys_master_pb
     
     def CreateNewLobby(self, request, context):
         ip, lobby_id = -1
+        lobby_id = requests.post(url=DB_ADDRESS+"/lobbies/").json()["lobby_id"]
         
-        return master_pb2.LobbyInfo(ip=ip, lobby_id=lobby_id)
+        # Find the worker with the smallest lobby_count
+        ip = min(WORKER_LOBBIES, key=lambda x: WORKER_LOBBIES[x])
+        
+        workerStub = sys_worker_pb2_grpc.WorkerServiceStub()
+        response = workerStub.NewLobby(sys_master_pb2.LobbyInfo(lobby_id=lobby_id, user_id=request.user_id))
+        if response.status == "OK":
+            request = requests.put(url=DB_ADDRESS+"/lobbies/"+lobby_id, data={"lobby_id": lobby_id, "ip_address": ip, "status": "available"})
+            return master_pb2.LobbyInfo(ip=ip, lobby_id=lobby_id)
+        else:
+            print("Error with worker:", response.status, response.desc)
+            return master_pb2.LobbyInfo(ip=-1, lobby_id=-1)
     
     def JoinLobby(self, request, context):
         try:
@@ -68,7 +81,6 @@ def serve():
             time.sleep(86400)  # One day
     except KeyboardInterrupt:
         server.stop(0)
-
 
 if __name__ == "__main__":
     serve()
