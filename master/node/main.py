@@ -55,7 +55,13 @@ class MasterServiceServicer(master_pb2_grpc.MasterServiceServicer, sys_master_pb
     
     def UpdateLobby(self, request, context):
         status, desc = ""
-        lobby = requests.get(url=DB_ADDRESS+"/lobbies/"+request.lobby_id).json()
+        oldLobby = requests.get(url=DB_ADDRESS+"/lobbies/"+request.lobby_id).json()
+        response = requests.put(url=DB_ADDRESS+"/lobbies/"+request.lobby_id, data={"lobby_id": request.lobby_id, "ip_address": oldLobby["ip_address"], "status": request.new_status})
+        if response.status_code == 200:
+            status = "OK"
+        else:
+            status = "ERROR"
+            desc = response.text
         return sys_master_pb2.Status(status=status, desc=desc)
 
 def initialize():
