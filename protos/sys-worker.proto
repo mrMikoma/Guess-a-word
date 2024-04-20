@@ -8,7 +8,7 @@ service WorkerService {
 }
 
 message LobbyInfo {
-    string lobby_id = 1; // master handles the lobby id's in master DB ### the lobby user wants to join
+    string lobby_id = 1; // master send the lobby id's from master DB ### the lobby user wants to join
     string user_id = 2; // new lobby's admin #### user who wants to join
 }
 

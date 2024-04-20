@@ -4,13 +4,15 @@ import grpc
 import os
 import master_pb2_grpc
 import master_pb2
+import sys_master_pb2_grpc
+import sys_master_pb2
 from dotenv import load_dotenv
 import requests
 
 # Global variables
 MAX_WORKERS = 10
 PORT = 50051
-WORKER_LOBBIES = {} # dictionary {worker:lobby_count} to track how many lobbies each worker has
+WORKER_LOBBIES = {} # dictionary {worker:[lobby_id]} to track how many lobbies each worker has
 DB_ADDRESS="http://0.0.0.0:8080"
 
 load_dotenv()
@@ -21,32 +23,34 @@ def MakeNewLobby(user_id: str):
     
     return
 
-def JoinExistingLobby(user_id: str):
-    # TODO
-    print("joined a new lobby!")
-    return
-class MasterServiceServicer(master_pb2_grpc.MasterServiceServicer, ): 
+class MasterServiceServicer(master_pb2_grpc.MasterServiceServicer, sys_master_pb2_grpc.MasterServiceServicer): 
     
     def CreateNewLobby(self, request, context):
-        ip=-1
-        lobby_id=-1
-        if (request.lobby_choice == 1):
-            ip, lobby_id = self.JoinExistingLobby(request.user_id)
-        elif(request.lobby_choice == 2):
-            ip, lobby_id = self.MakeNewLobby(request.user_id)
-        else:
-            # wrong request, return default values 
-            raise 
-        return master_pb2.NewLobbyInfo(ip=ip, lobby_id=lobby_id)
+        ip, lobby_id = -1
+        
+        return master_pb2.LobbyInfo(ip=ip, lobby_id=lobby_id)
     
     def JoinLobby(self, request, context):
-        return super().JoinLobby(request, context)
+        try:
+            ip, lobby_id = -1
+            lobby = requests.get(url=DB_ADDRESS+"/lobbies/"+request.lobby_id).json()
+            ip = lobby["ip_address"]
+            return master_pb2.LobbyInfo(ip=ip, lobby_id=request.lobby_id)
+        except Exception as e:
+            print("Error: ", e)
+            return master_pb2.LobbyInfo(ip=-1, lobby_id=-1)
     
-    def 
+    def UpdateLobby(self, request, context):
+        status, desc = ""
+        lobby = requests.get(url=DB_ADDRESS+"/lobbies/"+request.lobby_id).json()
+        return sys_master_pb2.Status(status=status, desc=desc)
 
 def initialize():
-    # TODO
-    # clear up worker
+    # add every worker to dict and set their lobby count to 0
+    worker_list = list(requests.get(DB_ADDRESS+"/workers/").content)
+    for worker in worker_list:
+        WORKER_LOBBIES[worker]=0
+        
     return
     
 def serve():
@@ -55,6 +59,7 @@ def serve():
     # Initialize the server
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=MAX_WORKERS))
     master_pb2_grpc.add_MasterServiceServicer_to_server(MasterServiceServicer(), server)
+    sys_master_pb2_grpc.add_MasterServiceServicer_to_server(MasterServiceServicer(), server)
     server.add_insecure_port(f'[::]:{PORT}')
     server.start()
     try:

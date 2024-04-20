@@ -8,6 +8,8 @@ from dotenv import load_dotenv
 
 import worker_pb2
 import worker_pb2_grpc
+import sys_worker_pb2
+import sys_worker_pb2_grpc
 from src import gameLogic
 
 ###
@@ -29,7 +31,7 @@ load_dotenv()  # Load environment variables from .env
 
 ###
 
-class WorkerServiceServicer(worker_pb2_grpc.WorkerServiceServicer):
+class WorkerServiceServicer(worker_pb2_grpc.WorkerServiceServicer, sys_worker_pb2_grpc.WorkerServiceServicer):
         
     def SendChannelMessage(self, request, context):
         print("SendChannelMessage")
@@ -155,6 +157,7 @@ class WorkerServiceServicer(worker_pb2_grpc.WorkerServiceServicer):
         print("A game starts.")
         if request.start:
             return worker_pb2.SecretWords(word=gameLogic.getWord())
+
 
 # Function for initializing data structures     
 def initialize():
