@@ -19,12 +19,6 @@ DB_ADDRESS="http://0.0.0.0:8080"
 
 load_dotenv()
 
-def MakeNewLobby(user_id: str):
-    
-    worker_list = requests.get(url=DB_ADDRESS+"/workers/")
-    
-    return
-
 class MasterServiceServicer(master_pb2_grpc.MasterServiceServicer, sys_master_pb2_grpc.MasterServiceServicer): 
     
     def CreateNewLobby(self, request, context):
