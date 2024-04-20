@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package master;
 
-service MasterService {
+service SysMasterService {
     rpc UpdateLobby(NewLobbyInfo) returns (Status) {} // worker tells master to update lobby status
 }
 

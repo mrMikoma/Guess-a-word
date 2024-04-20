@@ -1,2 +1,3 @@
 venv/
 mytodo
+.coverage

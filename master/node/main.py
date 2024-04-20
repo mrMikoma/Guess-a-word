@@ -11,13 +11,6 @@ import sys_worker_pb2
 from dotenv import load_dotenv
 import requests
 
-import master_pb2_grpc
-import master_pb2
-import sys_master_pb2
-import sys_master_pb2_grpc
-import sys_worker_pb2
-import sys_worker_pb2_grpc
-
 # Global variables
 MAX_WORKERS = 10
 PORT = 50051
@@ -26,7 +19,7 @@ DB_ADDRESS="http://0.0.0.0:8080"
 
 load_dotenv()
 
-class MasterServiceServicer(master_pb2_grpc.MasterServiceServicer, sys_master_pb2_grpc.MasterServiceServicer): 
+class MasterServiceServicer(master_pb2_grpc.MasterServiceServicer, sys_master_pb2_grpc.SysMasterServiceServicer): 
     
     def CreateNewLobby(self, request, context):
         ip, lobby_id = -1
@@ -79,7 +72,7 @@ def serve():
     # Initialize the server
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=MAX_WORKERS))
     master_pb2_grpc.add_MasterServiceServicer_to_server(MasterServiceServicer(), server)
-    sys_master_pb2_grpc.add_MasterServiceServicer_to_server(MasterServiceServicer(), server)
+    sys_master_pb2_grpc.add_SysMasterServiceServicer_to_server(MasterServiceServicer(), server)
     server.add_insecure_port(f'[::]:{PORT}')
     server.start()
     try:

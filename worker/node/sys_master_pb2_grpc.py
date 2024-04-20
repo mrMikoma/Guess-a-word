@@ -5,7 +5,7 @@ import grpc
 import sys_master_pb2 as sys__master__pb2
 
 
-class MasterServiceStub(object):
+class SysMasterServiceStub(object):
     """Missing associated documentation comment in .proto file."""
 
     def __init__(self, channel):
@@ -15,13 +15,13 @@ class MasterServiceStub(object):
             channel: A grpc.Channel.
         """
         self.UpdateLobby = channel.unary_unary(
-                '/master.MasterService/UpdateLobby',
+                '/master.SysMasterService/UpdateLobby',
                 request_serializer=sys__master__pb2.NewLobbyInfo.SerializeToString,
                 response_deserializer=sys__master__pb2.Status.FromString,
                 )
 
 
-class MasterServiceServicer(object):
+class SysMasterServiceServicer(object):
     """Missing associated documentation comment in .proto file."""
 
     def UpdateLobby(self, request, context):
@@ -31,7 +31,7 @@ class MasterServiceServicer(object):
         raise NotImplementedError('Method not implemented!')
 
 
-def add_MasterServiceServicer_to_server(servicer, server):
+def add_SysMasterServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'UpdateLobby': grpc.unary_unary_rpc_method_handler(
                     servicer.UpdateLobby,
@@ -40,12 +40,12 @@ def add_MasterServiceServicer_to_server(servicer, server):
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'master.MasterService', rpc_method_handlers)
+            'master.SysMasterService', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
 
 
  # This class is part of an EXPERIMENTAL API.
-class MasterService(object):
+class SysMasterService(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
@@ -59,7 +59,7 @@ class MasterService(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/master.MasterService/UpdateLobby',
+        return grpc.experimental.unary_unary(request, target, '/master.SysMasterService/UpdateLobby',
             sys__master__pb2.NewLobbyInfo.SerializeToString,
             sys__master__pb2.Status.FromString,
             options, channel_credentials,

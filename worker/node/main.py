@@ -5,6 +5,7 @@ from concurrent import futures
 import os
 import json
 from dotenv import load_dotenv
+import requests
 
 import worker_pb2
 import worker_pb2_grpc
@@ -24,6 +25,7 @@ MAX_WORKERS = 10
 REDIS_HOST = os.getenv('REDIS_HOST') # In docker-compose.yml, the Redis service is named "redis"
 REDIS_PASSWORD = os.getenv('REDIS_PASSWORD')
 CHANNELS = []
+DB_ADDRESS="http://0.0.0.0:8080"
 
 load_dotenv()  # Load environment variables from .env
 
@@ -163,6 +165,7 @@ class WorkerServiceServicer(worker_pb2_grpc.WorkerServiceServicer, sys_worker_pb
 def initialize():
     lobby0 = []
     CHANNELS.append(lobby0)
+    response = requests.post(url=DB_ADDRESS+"/workers/") # Send DB info that this worker has been created
     return 0
 
 def serve():
