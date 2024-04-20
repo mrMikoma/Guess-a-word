@@ -2,31 +2,35 @@ from concurrent import futures
 import time
 import grpc
 import os
-import master_pb2_grpc
-import master_pb2
 from dotenv import load_dotenv
 import requests
+
+import master_pb2_grpc
+import master_pb2
+import sys_master_pb2
+import sys_master_pb2_grpc
+import sys_worker_pb2
+import sys_worker_pb2_grpc
 
 # Global variables
 MAX_WORKERS = 10
 PORT = 50051
-WORKER_LOBBIES = {} # dictionary {worker:lobby_count} to track how many lobbies each worker has
 DB_ADDRESS="0.0.0.0:8080"
 
 load_dotenv()
 
-def AddAddNewLobbyToDB():
-    # TODO
+def MakeNewLobby():
+
+    worker_list = requests.get(url=DB_ADDRESS+"/workers/")
+
     
-    request = requests.post(url=DB_ADDRESS, data={"key": "value"})
-    print("added a new lobby!")
     return
 
 def JoinExistingLobby():
     # TODO
     print("joined a new lobby!")
     return
-class MasterServiceServicer(master_pb2_grpc.MasterServiceServicer): 
+class MasterServiceServicer(master_pb2_grpc.MasterServiceServicer, sys_master_pb2_grpc.MasterServiceServicer): 
     
     def SendLobbyInfo(self, request, context):
         ip=-1
@@ -34,11 +38,14 @@ class MasterServiceServicer(master_pb2_grpc.MasterServiceServicer):
         if (request.lobby_choice == 1):
             ip, lobby_id = self.JoinExistingLobby()
         elif(request.lobby_choise == 2):
-            ip, lobby_id = self.AddNewLobbyToDB()
+            ip, lobby_id = self.MakeNewLobby()
         else:
             # wrong request, return default values 
-            raise 
+            pass 
         return master_pb2.NewLobbyInfo(ip=ip, lobby_id=lobby_id)
+    
+    def UpdateLobby(self, request, context):
+        return super().UpdateLobby(request, context)
 
 def initialize():
     # TODO
