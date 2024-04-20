@@ -11,6 +11,13 @@ import sys_worker_pb2
 from dotenv import load_dotenv
 import requests
 
+import master_pb2_grpc
+import master_pb2
+import sys_master_pb2
+import sys_master_pb2_grpc
+import sys_worker_pb2
+import sys_worker_pb2_grpc
+
 # Global variables
 MAX_WORKERS = 10
 PORT = 50051
