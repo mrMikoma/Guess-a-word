@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 
 import worker_pb2
 import worker_pb2_grpc
+from src import gameLogic
 
 ###
 # References:
@@ -153,7 +154,7 @@ class WorkerServiceServicer(worker_pb2_grpc.WorkerServiceServicer):
 
         print("A game starts.")
         if request.start:
-            return worker_pb2.SecretWords(word="salasana")
+            return worker_pb2.SecretWords(word=gameLogic.getWord())
 
 # Function for initializing data structures     
 def initialize():

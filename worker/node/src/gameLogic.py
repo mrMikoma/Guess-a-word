@@ -13,6 +13,13 @@ def receive_ID(PLAYERS):
     return random.randint(0, len(PLAYERS) - 1)
 #end of mocks
 
+def getWord():
+    FILE = open("worker/node/src/wordlist.txt", mode = "r", encoding = "UTF-8")
+    for i in range(random.randint(2, 104335)):
+        WORD_TO_GUESS = FILE.readline()[:-1]
+    FILE.close()
+    return WORD_TO_GUESS
+
 def main():
     #list of players, should be updated when new players join or leave
     PLAYERS = ["Samuel", "Otto", "Miko", "Jeremias"]
@@ -20,13 +27,8 @@ def main():
     for player in PLAYERS:
         SCORE.append(0)
 
-    FILE = open("worker/node/src/wordlist.txt", mode = "r", encoding = "UTF-8")
-    for i in range(random.randint(2, 104335)):
-        WORD_TO_GUESS = FILE.readline()
-
     for i in range(3):
-        for j in range(random.randint(2, 104335)):
-            WORD_TO_GUESS = FILE.readline()[:-1]
+        WORD_TO_GUESS = getWord()
         msg = "Round " + str(i + 1)
         send_message(PLAYERS[0], msg)
         guessed = []
@@ -61,8 +63,6 @@ def main():
         points = str(SCORE[i])
         msg = player + ": " + points
         print(msg)
-    
-    FILE.close()
 
 if __name__ == "__main__":
     main()
