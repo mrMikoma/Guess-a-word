@@ -3,14 +3,16 @@ syntax = "proto3";
 package worker;
 
 service WorkerService {
-    rpc NewLobby(LobbyInfo) returns (Status) {}
-    rpc JoinLobby(LobbyInfo) returns (Status) {}
+    rpc NewLobby(LobbyInfo) returns (Status) {} // Master asks for a worker to create new lobby
+    rpc JoinLobby(LobbyInfo) returns (Status) {} // Master asks if user can join this lobby
 }
 
 message LobbyInfo {
-    string lobby_id = 1;
+    string lobby_id = 1; // master handles the lobby id's in master DB ### the lobby user wants to join
+    string user_id = 2; // new lobby's admin #### user who wants to join
 }
 
+// simple status if it worked/failed, with desc used as to explain an error
 message Status {
     string status = 1;
     string desc = 2;

@@ -3,15 +3,23 @@ syntax = "proto3";
 package master;
 
 service MasterService {
-    rpc SendLobbyInfo(LobbyInfo) returns (NewLobbyInfo) {}
+    rpc CreateNewLobby(NewLobbyParameters) returns (LobbyInfo) {} // client asks for a new lobby
+    rpc JoinLobby(LobbyParameters) returns (LobbyInfo) {} // client asks to join an existing lobby
 }
 
+
+message NewLobbyParameters {
+    int64 lobby_choice = 1; // used if to select private/public lobby (future feature=)
+    string user_id = 2; // new lobby's admin
+}
+
+message LobbyParameters {
+    int64 lobby_id = 1; // used to find the correct lobby
+    string user_id = 2; // user who wants to join (can be used with authentication)
+}
+
+// Master always return workers ip and lobby id, both -1 if failed
 message LobbyInfo {
-    int64 lobby_choice = 1;
-    string user_id = 2;
-}
-
-message NewLobbyInfo {
     string IP = 1;
     int64 lobby_id = 2;
 }

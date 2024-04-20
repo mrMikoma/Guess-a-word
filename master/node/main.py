@@ -11,34 +11,38 @@ import requests
 MAX_WORKERS = 10
 PORT = 50051
 WORKER_LOBBIES = {} # dictionary {worker:lobby_count} to track how many lobbies each worker has
-DB_ADDRESS="0.0.0.0:8080"
+DB_ADDRESS="http://0.0.0.0:8080"
 
 load_dotenv()
 
-def AddAddNewLobbyToDB():
-    # TODO
+def MakeNewLobby(user_id: str):
     
-    request = requests.post(url=DB_ADDRESS, data={"key": "value"})
-    print("added a new lobby!")
+    worker_list = requests.get(url=DB_ADDRESS+"/workers/")
+    
     return
 
-def JoinExistingLobby():
+def JoinExistingLobby(user_id: str):
     # TODO
     print("joined a new lobby!")
     return
-class MasterServiceServicer(master_pb2_grpc.MasterServiceServicer): 
+class MasterServiceServicer(master_pb2_grpc.MasterServiceServicer, ): 
     
-    def SendLobbyInfo(self, request, context):
+    def CreateNewLobby(self, request, context):
         ip=-1
         lobby_id=-1
         if (request.lobby_choice == 1):
-            ip, lobby_id = self.JoinExistingLobby()
+            ip, lobby_id = self.JoinExistingLobby(request.user_id)
         elif(request.lobby_choice == 2):
-            ip, lobby_id = self.AddNewLobbyToDB()
+            ip, lobby_id = self.MakeNewLobby(request.user_id)
         else:
             # wrong request, return default values 
             raise 
         return master_pb2.NewLobbyInfo(ip=ip, lobby_id=lobby_id)
+    
+    def JoinLobby(self, request, context):
+        return super().JoinLobby(request, context)
+    
+    def 
 
 def initialize():
     # TODO

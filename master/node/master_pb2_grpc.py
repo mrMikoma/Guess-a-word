@@ -14,17 +14,28 @@ class MasterServiceStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.SendLobbyInfo = channel.unary_unary(
-                '/master.MasterService/SendLobbyInfo',
-                request_serializer=master__pb2.LobbyInfo.SerializeToString,
-                response_deserializer=master__pb2.NewLobbyInfo.FromString,
+        self.CreateNewLobby = channel.unary_unary(
+                '/master.MasterService/CreateNewLobby',
+                request_serializer=master__pb2.NewLobbyParameters.SerializeToString,
+                response_deserializer=master__pb2.LobbyInfo.FromString,
+                )
+        self.JoinLobby = channel.unary_unary(
+                '/master.MasterService/JoinLobby',
+                request_serializer=master__pb2.LobbyParameters.SerializeToString,
+                response_deserializer=master__pb2.LobbyInfo.FromString,
                 )
 
 
 class MasterServiceServicer(object):
     """Missing associated documentation comment in .proto file."""
 
-    def SendLobbyInfo(self, request, context):
+    def CreateNewLobby(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def JoinLobby(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -33,10 +44,15 @@ class MasterServiceServicer(object):
 
 def add_MasterServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'SendLobbyInfo': grpc.unary_unary_rpc_method_handler(
-                    servicer.SendLobbyInfo,
-                    request_deserializer=master__pb2.LobbyInfo.FromString,
-                    response_serializer=master__pb2.NewLobbyInfo.SerializeToString,
+            'CreateNewLobby': grpc.unary_unary_rpc_method_handler(
+                    servicer.CreateNewLobby,
+                    request_deserializer=master__pb2.NewLobbyParameters.FromString,
+                    response_serializer=master__pb2.LobbyInfo.SerializeToString,
+            ),
+            'JoinLobby': grpc.unary_unary_rpc_method_handler(
+                    servicer.JoinLobby,
+                    request_deserializer=master__pb2.LobbyParameters.FromString,
+                    response_serializer=master__pb2.LobbyInfo.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -49,7 +65,7 @@ class MasterService(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
-    def SendLobbyInfo(request,
+    def CreateNewLobby(request,
             target,
             options=(),
             channel_credentials=None,
@@ -59,8 +75,25 @@ class MasterService(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/master.MasterService/SendLobbyInfo',
-            master__pb2.LobbyInfo.SerializeToString,
-            master__pb2.NewLobbyInfo.FromString,
+        return grpc.experimental.unary_unary(request, target, '/master.MasterService/CreateNewLobby',
+            master__pb2.NewLobbyParameters.SerializeToString,
+            master__pb2.LobbyInfo.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def JoinLobby(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/master.MasterService/JoinLobby',
+            master__pb2.LobbyParameters.SerializeToString,
+            master__pb2.LobbyInfo.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

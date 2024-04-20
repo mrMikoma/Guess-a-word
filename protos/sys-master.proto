@@ -3,14 +3,15 @@ syntax = "proto3";
 package master;
 
 service MasterService {
-    rpc UpdateLobby(NewLobbyInfo) returns (Status) {}
+    rpc UpdateLobby(NewLobbyInfo) returns (Status) {} // worker tells master to update lobby status
 }
 
 message NewLobbyInfo {
-    string lobby_id = 1;
-    string new_status = 2; 
+    string lobby_id = 1; // used to identify lobby
+    string new_status = 2;  // new status
 }
 
+// simple status if it worked/failed, with desc used as to explain an error
 message Status {
     string status = 1;
     string desc = 2;
