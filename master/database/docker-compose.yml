@@ -47,8 +47,7 @@ services:
       - private-db
       
 # Networks:
-# private     - a private network for services that need to communicate with each other
-# host        - for the adapter service to be able to be accessed from external services
+# private-db     - a private network for services that need to communicate with each other
 
 # Define a custom network for the database services
 networks:

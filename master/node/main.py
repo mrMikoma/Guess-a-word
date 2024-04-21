@@ -69,7 +69,6 @@ class MasterServiceServicer(master_pb2_grpc.MasterServiceServicer, sys_master_pb
 def initialize():
     # add every worker to dict and set their lobby count to 0
     try:
-        print(DB_ADDRESS+"/workers/") # debug
         worker_list = list(requests.get(DB_ADDRESS+"/workers/").content)
         for worker in worker_list:
             WORKER_LOBBIES[worker]=0
@@ -82,6 +81,7 @@ def serve():
     initialize()
     
     # Initialize the server
+    print("Using database address: " + DB_ADDRESS) # debug
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=MAX_WORKERS))
     master_pb2_grpc.add_MasterServiceServicer_to_server(MasterServiceServicer(), server)
     sys_master_pb2_grpc.add_SysMasterServiceServicer_to_server(MasterServiceServicer(), server)
