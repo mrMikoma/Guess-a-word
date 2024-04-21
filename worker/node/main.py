@@ -6,6 +6,7 @@ import os
 import json
 from dotenv import load_dotenv
 import requests
+import socket
 
 import worker_pb2
 import worker_pb2_grpc
@@ -165,8 +166,14 @@ class WorkerServiceServicer(worker_pb2_grpc.WorkerServiceServicer, sys_worker_pb
 def initialize():
     lobby0 = []
     CHANNELS.append(lobby0)
+    
+    # Get the worker's IP address
+    worker_ip = socket.gethostbyname(socket.gethostname())
+    print("Worker IP address:", worker_ip) # Print the worker's IP address
+    
     try:
-        response = requests.post(url=DB_ADDRESS+"/workers/") # Send DB info that this worker has been created
+        # Send the worker's IP address to the database
+        response = requests.post(url=DB_ADDRESS + "/workers/?ip_address=" + worker_ip)
     except Exception as e:
         print("Error trying to send worker info to db:", e)
     finally:
