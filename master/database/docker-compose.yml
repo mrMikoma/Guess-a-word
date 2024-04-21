@@ -11,7 +11,7 @@ services:
     env_file:
       - .env
 
-    # Define the restart policy
+    # Restart the container unless stopped
     restart: unless-stopped
     
     # Define the volumes
@@ -31,8 +31,8 @@ services:
     depends_on:
       - database
 
-    # Define restart policy
-    restart: on-failure
+    # Restart the container unless stopped
+    restart: unless-stopped
 
     # Define the environment variables
     env_file:
@@ -45,11 +45,15 @@ services:
     # Set the network to the private network
     networks:
       - private-db
+      - private-comms
       
 # Networks:
-# private-db     - a private network for services that need to communicate with each other
+# private-db     - a private network for services that need access to the database
+# private-comms  - a private network for communication between services
 
 # Define a custom network for the database services
 networks:
   private-db:
     driver: bridge
+  private-comms:
+    external: true

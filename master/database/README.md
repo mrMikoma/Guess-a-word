@@ -18,6 +18,12 @@ Before you begin, ensure you have the following installed on your system:
 
    Change the values to not use default variables.
 
+2. **Create Commication Network (if doesn't exist)**
+   Create comminication network if doesn't exist yet.
+   ```
+   docker network create private-comms
+   ```
+
 2. **Build and Run Docker Compose:**
    Run the following command to build and run your Docker Compose services:
    ```
