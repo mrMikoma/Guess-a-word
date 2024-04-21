@@ -23,18 +23,22 @@ class MasterServiceServicer(master_pb2_grpc.MasterServiceServicer, sys_master_pb
     
     def CreateNewLobby(self, request, context):
         ip, lobby_id = -1
-        lobby_id = requests.post(url=DB_ADDRESS+"/lobbies/").json()["lobby_id"]
-        
-        # Find the worker with the smallest lobby_count
-        ip = min(WORKER_LOBBIES, key=lambda x: WORKER_LOBBIES[x])
-        
-        workerStub = sys_worker_pb2_grpc.WorkerServiceStub()
-        response = workerStub.NewLobby(sys_master_pb2.LobbyInfo(lobby_id=lobby_id, user_id=request.user_id))
-        if response.status == "OK":
-            request = requests.put(url=DB_ADDRESS+"/lobbies/"+lobby_id, data={"lobby_id": lobby_id, "ip_address": ip, "status": "available"})
-            return master_pb2.LobbyInfo(ip=ip, lobby_id=lobby_id)
-        else:
-            print("Error with worker:", response.status, response.desc)
+        try: 
+            lobby_id = requests.post(url=DB_ADDRESS+"/lobbies/").json()["lobby_id"]
+            
+            # Find the worker with the smallest lobby_count
+            ip = min(WORKER_LOBBIES, key=lambda x: WORKER_LOBBIES[x])
+            
+            workerStub = sys_worker_pb2_grpc.WorkerServiceStub()
+            response = workerStub.NewLobby(sys_master_pb2.LobbyInfo(lobby_id=lobby_id, user_id=request.user_id))
+            if response.status == "OK":
+                request = requests.put(url=DB_ADDRESS+"/lobbies/"+lobby_id, data={"lobby_id": lobby_id, "ip_address": ip, "status": "available"})
+                return master_pb2.LobbyInfo(ip=ip, lobby_id=lobby_id)
+            else:
+                print("Error with worker:", response.status, response.desc)
+                return master_pb2.LobbyInfo(ip=-1, lobby_id=-1)
+        except Exception as e:
+            print("Error: ", e)
             return master_pb2.LobbyInfo(ip=-1, lobby_id=-1)
     
     def JoinLobby(self, request, context):
@@ -49,14 +53,18 @@ class MasterServiceServicer(master_pb2_grpc.MasterServiceServicer, sys_master_pb
     
     def UpdateLobby(self, request, context):
         status, desc = ""
-        oldLobby = requests.get(url=DB_ADDRESS+"/lobbies/"+request.lobby_id).json()
-        response = requests.put(url=DB_ADDRESS+"/lobbies/"+request.lobby_id, data={"lobby_id": request.lobby_id, "ip_address": oldLobby["ip_address"], "status": request.new_status})
-        if response.status_code == 200:
-            status = "OK"
-        else:
-            status = "ERROR"
-            desc = response.text
-        return sys_master_pb2.Status(status=status, desc=desc)
+        try:
+            oldLobby = requests.get(url=DB_ADDRESS+"/lobbies/"+request.lobby_id).json()
+            response = requests.put(url=DB_ADDRESS+"/lobbies/"+request.lobby_id, data={"lobby_id": request.lobby_id, "ip_address": oldLobby["ip_address"], "status": request.new_status})
+            if response.status_code == 200:
+                status = "OK"
+            else:
+                status = "ERROR"
+                desc = response.text
+        except Exception as e:
+            print("Error: ", e)
+        finally:
+            return sys_master_pb2.Status(status=status, desc=desc)
 
 def initialize():
     # add every worker to dict and set their lobby count to 0
@@ -65,7 +73,7 @@ def initialize():
         for worker in worker_list:
             WORKER_LOBBIES[worker]=0
     except Exception as e:
-        print("error initializing workers:",e)
+        print("Error initializing workers:",e)
     finally:
         return
     
