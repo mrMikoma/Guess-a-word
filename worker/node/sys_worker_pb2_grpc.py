@@ -19,8 +19,8 @@ class WorkerServiceStub(object):
                 request_serializer=sys__worker__pb2.LobbyInfo.SerializeToString,
                 response_deserializer=sys__worker__pb2.Status.FromString,
                 )
-        self.JoinLobby = channel.unary_unary(
-                '/worker.WorkerService/JoinLobby',
+        self.MasterJoinLobby = channel.unary_unary(
+                '/worker.WorkerService/MasterJoinLobby',
                 request_serializer=sys__worker__pb2.LobbyInfo.SerializeToString,
                 response_deserializer=sys__worker__pb2.Status.FromString,
                 )
@@ -35,7 +35,7 @@ class WorkerServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def JoinLobby(self, request, context):
+    def MasterJoinLobby(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -49,8 +49,8 @@ def add_WorkerServiceServicer_to_server(servicer, server):
                     request_deserializer=sys__worker__pb2.LobbyInfo.FromString,
                     response_serializer=sys__worker__pb2.Status.SerializeToString,
             ),
-            'JoinLobby': grpc.unary_unary_rpc_method_handler(
-                    servicer.JoinLobby,
+            'MasterJoinLobby': grpc.unary_unary_rpc_method_handler(
+                    servicer.MasterJoinLobby,
                     request_deserializer=sys__worker__pb2.LobbyInfo.FromString,
                     response_serializer=sys__worker__pb2.Status.SerializeToString,
             ),
@@ -82,7 +82,7 @@ class WorkerService(object):
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
     @staticmethod
-    def JoinLobby(request,
+    def MasterJoinLobby(request,
             target,
             options=(),
             channel_credentials=None,
@@ -92,7 +92,7 @@ class WorkerService(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/worker.WorkerService/JoinLobby',
+        return grpc.experimental.unary_unary(request, target, '/worker.WorkerService/MasterJoinLobby',
             sys__worker__pb2.LobbyInfo.SerializeToString,
             sys__worker__pb2.Status.FromString,
             options, channel_credentials,

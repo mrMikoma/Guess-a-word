@@ -4,7 +4,7 @@ package worker;
 
 service WorkerService {
     rpc NewLobby(LobbyInfo) returns (Status) {} // Master asks for a worker to create new lobby
-    rpc JoinLobby(LobbyInfo) returns (Status) {} // Master asks if user can join this lobby
+    rpc MasterJoinLobby(LobbyInfo) returns (Status) {} // Master asks if user can join this lobby
 }
 
 message LobbyInfo {
