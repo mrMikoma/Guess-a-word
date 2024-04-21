@@ -1,5 +1,5 @@
-# Using python 3.12 as base image (change according to used Python version)
-FROM python:3.12
+# Using python 3.10 as base image (change according to used Python version)
+FROM python:3.10
 
 # Set the working directory in the container
 WORKDIR /adapter

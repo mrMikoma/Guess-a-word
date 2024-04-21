@@ -10,14 +10,17 @@ services:
     # Define the environment variables
     env_file:
       - .env
+
+    # Define the restart policy
+    restart: unless-stopped
     
     # Define the volumes
     volumes:
       - ./data:/var/lib/postgresql/data
 
-    # Set the network to the custom network
+    # Set the network to the private network
     networks:
-      - db_network
+      - private-db
 
   # Define the adapter service
   adapter:
@@ -39,15 +42,15 @@ services:
     ports:
       - "8080:8080"
 
-    # Set the network to the custom network
+    # Set the network to the private network
     networks:
-      - db_network
+      - private-db
       
 # Networks:
-# db_network  - a custom network for the database services
+# private     - a private network for services that need to communicate with each other
 # host        - for the adapter service to be able to be accessed from external services
 
 # Define a custom network for the database services
 networks:
-  db_network:
+  private-db:
     driver: bridge

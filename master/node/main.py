@@ -15,7 +15,7 @@ import requests
 MAX_WORKERS = 10
 PORT = 50051
 WORKER_LOBBIES = {} # dictionary {worker_ip:lobby_count} to track how many lobbies each worker has
-DB_ADDRESS="http://localhost:8080"
+DB_ADDRESS="http://database-adapter-1:8080" # if running in docker use address of "database-adapter-1", else use "localhost:8080"
 
 load_dotenv()
 
@@ -69,6 +69,7 @@ class MasterServiceServicer(master_pb2_grpc.MasterServiceServicer, sys_master_pb
 def initialize():
     # add every worker to dict and set their lobby count to 0
     try:
+        print(DB_ADDRESS+"/workers/") # debug
         worker_list = list(requests.get(DB_ADDRESS+"/workers/").content)
         for worker in worker_list:
             WORKER_LOBBIES[worker]=0
