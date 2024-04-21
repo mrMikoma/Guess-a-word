@@ -33,7 +33,7 @@ load_dotenv()  # Load environment variables from .env
 
 ###
 
-class WorkerServiceServicer(worker_pb2_grpc.WorkerServiceServicer, sys_worker_pb2_grpc.WorkerServiceServicer):
+class WorkerServiceServicer(worker_pb2_grpc.WorkerServiceServicer, sys_worker_pb2_grpc.SysWorkerServiceServicer):
         
     def SendChannelMessage(self, request, context):
         print("SendChannelMessage")
@@ -165,8 +165,12 @@ class WorkerServiceServicer(worker_pb2_grpc.WorkerServiceServicer, sys_worker_pb
 def initialize():
     lobby0 = []
     CHANNELS.append(lobby0)
-    response = requests.post(url=DB_ADDRESS+"/workers/") # Send DB info that this worker has been created
-    return 0
+    try:
+        response = requests.post(url=DB_ADDRESS+"/workers/") # Send DB info that this worker has been created
+    except Exception as e:
+        print("Error trying to send worker info to db:", e)
+    finally:
+        return 0
 
 def serve():
     # Initialize data structures
@@ -179,7 +183,7 @@ def serve():
     server.start()
     try:
         while True:
-            print("Server is running...")
+            print("Worker is running...")
             time.sleep(60)  # One minute
     except KeyboardInterrupt:
         server.stop(0)

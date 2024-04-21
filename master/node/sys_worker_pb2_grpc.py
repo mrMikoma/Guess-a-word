@@ -5,7 +5,7 @@ import grpc
 import sys_worker_pb2 as sys__worker__pb2
 
 
-class WorkerServiceStub(object):
+class SysWorkerServiceStub(object):
     """Missing associated documentation comment in .proto file."""
 
     def __init__(self, channel):
@@ -15,18 +15,18 @@ class WorkerServiceStub(object):
             channel: A grpc.Channel.
         """
         self.NewLobby = channel.unary_unary(
-                '/worker.WorkerService/NewLobby',
-                request_serializer=sys__worker__pb2.LobbyInfo.SerializeToString,
-                response_deserializer=sys__worker__pb2.Status.FromString,
+                '/worker.SysWorkerService/NewLobby',
+                request_serializer=sys__worker__pb2.LobbyParams.SerializeToString,
+                response_deserializer=sys__worker__pb2.MasterStatus.FromString,
                 )
         self.MasterJoinLobby = channel.unary_unary(
-                '/worker.WorkerService/MasterJoinLobby',
-                request_serializer=sys__worker__pb2.LobbyInfo.SerializeToString,
-                response_deserializer=sys__worker__pb2.Status.FromString,
+                '/worker.SysWorkerService/MasterJoinLobby',
+                request_serializer=sys__worker__pb2.LobbyParams.SerializeToString,
+                response_deserializer=sys__worker__pb2.MasterStatus.FromString,
                 )
 
 
-class WorkerServiceServicer(object):
+class SysWorkerServiceServicer(object):
     """Missing associated documentation comment in .proto file."""
 
     def NewLobby(self, request, context):
@@ -42,26 +42,26 @@ class WorkerServiceServicer(object):
         raise NotImplementedError('Method not implemented!')
 
 
-def add_WorkerServiceServicer_to_server(servicer, server):
+def add_SysWorkerServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'NewLobby': grpc.unary_unary_rpc_method_handler(
                     servicer.NewLobby,
-                    request_deserializer=sys__worker__pb2.LobbyInfo.FromString,
-                    response_serializer=sys__worker__pb2.Status.SerializeToString,
+                    request_deserializer=sys__worker__pb2.LobbyParams.FromString,
+                    response_serializer=sys__worker__pb2.MasterStatus.SerializeToString,
             ),
             'MasterJoinLobby': grpc.unary_unary_rpc_method_handler(
                     servicer.MasterJoinLobby,
-                    request_deserializer=sys__worker__pb2.LobbyInfo.FromString,
-                    response_serializer=sys__worker__pb2.Status.SerializeToString,
+                    request_deserializer=sys__worker__pb2.LobbyParams.FromString,
+                    response_serializer=sys__worker__pb2.MasterStatus.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'worker.WorkerService', rpc_method_handlers)
+            'worker.SysWorkerService', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
 
 
  # This class is part of an EXPERIMENTAL API.
-class WorkerService(object):
+class SysWorkerService(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
@@ -75,9 +75,9 @@ class WorkerService(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/worker.WorkerService/NewLobby',
-            sys__worker__pb2.LobbyInfo.SerializeToString,
-            sys__worker__pb2.Status.FromString,
+        return grpc.experimental.unary_unary(request, target, '/worker.SysWorkerService/NewLobby',
+            sys__worker__pb2.LobbyParams.SerializeToString,
+            sys__worker__pb2.MasterStatus.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -92,8 +92,8 @@ class WorkerService(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/worker.WorkerService/MasterJoinLobby',
-            sys__worker__pb2.LobbyInfo.SerializeToString,
-            sys__worker__pb2.Status.FromString,
+        return grpc.experimental.unary_unary(request, target, '/worker.SysWorkerService/MasterJoinLobby',
+            sys__worker__pb2.LobbyParams.SerializeToString,
+            sys__worker__pb2.MasterStatus.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

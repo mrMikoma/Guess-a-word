@@ -30,7 +30,7 @@ class MasterServiceServicer(master_pb2_grpc.MasterServiceServicer, sys_master_pb
             ip = min(WORKER_LOBBIES, key=lambda x: WORKER_LOBBIES[x])
             
             workerStub = sys_worker_pb2_grpc.WorkerServiceStub()
-            response = workerStub.NewLobby(sys_master_pb2.LobbyInfo(lobby_id=lobby_id, user_id=request.user_id))
+            response = workerStub.NewLobby(sys_master_pb2.LobbyParams(lobby_id=lobby_id, user_id=request.user_id))
             if response.status == "OK":
                 request = requests.put(url=DB_ADDRESS+"/lobbies/"+lobby_id, data={"lobby_id": lobby_id, "ip_address": ip, "status": "available"})
                 return master_pb2.LobbyInfo(ip=ip, lobby_id=lobby_id)
