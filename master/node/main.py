@@ -15,7 +15,7 @@ import requests
 MAX_WORKERS = 10
 PORT = 50051
 WORKER_LOBBIES = {} # dictionary {worker_ip:lobby_count} to track how many lobbies each worker has
-DB_ADDRESS="http://0.0.0.0:8080"
+DB_ADDRESS="http://localhost:8080"
 
 load_dotenv()
 
@@ -60,11 +60,14 @@ class MasterServiceServicer(master_pb2_grpc.MasterServiceServicer, sys_master_pb
 
 def initialize():
     # add every worker to dict and set their lobby count to 0
-    worker_list = list(requests.get(DB_ADDRESS+"/workers/").content)
-    for worker in worker_list:
-        WORKER_LOBBIES[worker]=0
-        
-    return
+    try:
+        worker_list = list(requests.get(DB_ADDRESS+"/workers/").content)
+        for worker in worker_list:
+            WORKER_LOBBIES[worker]=0
+    except Exception as e:
+        print("error initializing workers:",e)
+    finally:
+        return
     
 def serve():
     initialize()

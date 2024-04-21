@@ -1,1 +1,5 @@
 grpcio==1.62.1
+grpcio_tools==1.62.1
+python-dotenv==1.0.1
+requests==2.22.0
+urllib3==1.25.8

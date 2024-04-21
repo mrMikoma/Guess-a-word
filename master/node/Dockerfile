@@ -1,5 +1,5 @@
 # Using python 3.12 as base image
-FROM python:3.12
+FROM python:3.8.10
 
 # Set the working directory in the container
 WORKDIR /node
