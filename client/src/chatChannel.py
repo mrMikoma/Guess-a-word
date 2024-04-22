@@ -44,15 +44,22 @@ def receive_messages(stub, lobby_id, user_id, shutdown_event):
 
 # Send messages to the channel 
 def send_message(stub, lobby_id, user_id, shutdown_event):
+    secretWord = 'salasana'
+
     while True:
         content = input() # Get user input
         
         # Check if the user wants to exit the channel
         if content.lower() == 'exit' or shutdown_event.is_set():
             break
-
-        # Send the message to the server
-        request = worker_pb2.LobbyMessage(lobby_id=lobby_id, sender_id=user_id, content=content)
+        # Check if the message is same as the secret word
+        elif content.lower() == secretWord:
+            # If it is send notice to other players without showing the other players
+            print("Good job!")
+            request = worker_pb2.LobbyMessage(lobby_id=lobby_id, sender_id=user_id, content=(str(user_id) + ' guessed correctly!'))
+        else:
+            # Else send the message to the server
+            request = worker_pb2.LobbyMessage(lobby_id=lobby_id, sender_id=user_id, content=content)
         response = stub.SendChannelMessage(request)
         if not response.success:
             print(COLOR_RED + "Error sending message: " + response.message + COLOR_RESET)
