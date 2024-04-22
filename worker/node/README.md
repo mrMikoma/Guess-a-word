@@ -1,4 +1,4 @@
-# Initializing Python 3 and Pip Virtual Environment Project with Dockerfile
+# Initializing Python 3 and Pip Virtual Environment Project and with Dockerfile
 
 This guide will walk you through the process of initializing a Python 3 project with Pip's virtual environment (venv).
 
@@ -7,6 +7,7 @@ This guide will walk you through the process of initializing a Python 3 project 
 Before you begin, ensure you have the following installed on your system:
 
 - Python 3: [Install Python 3](https://www.python.org/downloads/)
+- Docker: [Install Docker](https://docs.docker.com/get-docker/)
 
 ## Redis database setup
    This server needs Redis dabase in order to work correctly. Please refer to README in Redis directory. 
@@ -47,6 +48,34 @@ Before you begin, ensure you have the following installed on your system:
    Run the server using Python3:
    ```bash
    python3 ./main.py
+   ```
+
+## Docker Setup
+
+1. **Build Docker Image:**
+   Run the following command to build the Docker image:
+   ```bash
+   docker build -t worker .
+   ```
+
+2. **Run Docker Container:**
+   Execute the following command to run the Docker container:
+   ```bash
+   docker run -p 50052:50052 worker
+   ```
+
+   The master server uses port 50052. 
+
+6. **Access the Application:**
+   Once the container is running, you can access your application by typing
+   ```bash
+   docker ps -a
+   ```
+
+7. **Stop the Application:**
+   Stop Docker containers by typing:
+   ```bash
+   docker stop <container_name>
    ```
 
 ## Additional Notes

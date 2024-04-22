@@ -7,8 +7,8 @@ services:
     # Image of the container
     image: redis:7.2.4-alpine # Image of redis
     
-    # Restart the container always
-    restart: always # Restart the container always
+    # Restart the container unless stopped
+    restart: unless-stopped
     
     # Command to run the container
     command: redis-server --save 60 1 --loglevel warning --requirepass ${REDIS_PASSWORD}
@@ -33,8 +33,8 @@ services:
     depends_on:
       - redis
 
-    # Define restart policy
-    restart: on-failure
+    # Restart the container unless stopped
+    restart: unless-stopped
 
     # Define the environment variables
     env_file:
@@ -47,12 +47,15 @@ services:
     # Set the network to the custom network
     networks:
       - redis_network
+      - private-comms
       
 # Networks:
-# redis_network  - a custom network for the redis services
-# host           - for the worker service to be able to be accessed from external services
+# redis_network      - a custom network for the redis services
+# private-comms      - a custom network for communication between services
 
 # Define a custom network for the database services
 networks:
   redis_network:
     driver: bridge
+  private-comms:
+    external: true

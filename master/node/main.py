@@ -15,7 +15,7 @@ import requests
 MAX_WORKERS = 10
 PORT = 50051
 WORKER_LOBBIES = {} # dictionary {worker_ip:lobby_count} to track how many lobbies each worker has
-DB_ADDRESS="http://localhost:8080"
+DB_ADDRESS="http://database-adapter-1:8080" # if running in docker use address of "database-adapter-1", else use "localhost:8080"
 
 load_dotenv()
 
@@ -96,6 +96,7 @@ def serve():
     initialize()
     
     # Initialize the server
+    print("Using database address: " + DB_ADDRESS) # debug
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=MAX_WORKERS))
     master_pb2_grpc.add_MasterServiceServicer_to_server(MasterServiceServicer(), server)
     sys_master_pb2_grpc.add_SysMasterServiceServicer_to_server(MasterServiceServicer(), server)

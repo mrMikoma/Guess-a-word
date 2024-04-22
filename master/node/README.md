@@ -45,7 +45,7 @@ Before you begin, ensure you have the following installed on your system:
 2. **Run Docker Container:**
    Execute the following command to run the Docker container:
    ```bash
-   docker run -p 50051:50051 master
+   docker run --network database_private-db -p 50051:50051 master
    ```
 
    The master server uses port 50051. 

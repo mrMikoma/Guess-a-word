@@ -13,8 +13,8 @@ def receive_ID(PLAYERS):
     return random.randint(0, len(PLAYERS) - 1)
 #end of mocks
 
-def getWord():
-    FILE = open("worker/node/src/wordlist.txt", mode = "r", encoding = "UTF-8")
+def getWord(filepath):
+    FILE = open(filepath, mode = "r", encoding = "UTF-8")
     for i in range(random.randint(2, 104335)):
         WORD_TO_GUESS = FILE.readline()[:-1]
     FILE.close()
@@ -28,7 +28,7 @@ def main():
         SCORE.append(0)
 
     for i in range(3):
-        WORD_TO_GUESS = getWord()
+        WORD_TO_GUESS = getWord("worker/node/src/wordlist.txt")
         msg = "Round " + str(i + 1)
         send_message(PLAYERS[0], msg)
         guessed = []

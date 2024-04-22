@@ -7,8 +7,8 @@ import os
 # Database Configuration
 username = os.getenv("POSTGRES_USER")
 password = os.getenv("POSTGRES_PASSWORD")
-hostname = os.getenv("DB_HOSTNAME", "database")  # Use DB_HOSTNAME if set, otherwise default to ...
-port = os.getenv("DB_PORT", "5432")               # default to 5432 if DB_PORT is not set
+hostname = "database"                           # "localhost" if running locally, "database" if running in Docker
+port = "5432"                                   # by default "5432"
 databasename = os.getenv("POSTGRES_DB")
 
 # Construct DATABASE_URL
