@@ -79,7 +79,7 @@ class MasterServiceServicer(master_pb2_grpc.MasterServiceServicer, sys_master_pb
         status, desc = ""
         try:
             oldLobby = requests.get(url=DB_ADDRESS+"/lobbies/"+request.lobby_id).json()
-            response = requests.put(url=DB_ADDRESS+"/lobbies/"+request.lobby_id, data={"lobby_id": request.lobby_id, "ip_address": oldLobby["ip_address"], "status": request.new_status})
+            response = requests.put(url=DB_ADDRESS+"/lobbies/"+request.lobby_id, params={"lobby_id": request.lobby_id, "ip_address": oldLobby["ip_address"], "status": request.new_status})
             if response.status_code == 200:
                 status = "OK"
             else:
