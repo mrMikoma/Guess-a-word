@@ -20,6 +20,6 @@ message LobbyParameters {
 
 // Master always return workers ip and lobby id, both -1 if failed
 message LobbyInfo {
-    string IP = 1;
+    string ip = 1;
     int64 lobby_id = 2;
 }

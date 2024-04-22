@@ -26,6 +26,7 @@ MAX_WORKERS = 10
 REDIS_HOST = os.getenv('REDIS_HOST') # In docker-compose.yml, the Redis service is named "redis"
 REDIS_PASSWORD = os.getenv('REDIS_PASSWORD')
 CHANNELS = []
+ADMINS = []
 DB_ADDRESS="http://database-adapter-1:8080" # if running in docker use address of "database-adapter-1", else use "localhost:8080"
 
 load_dotenv()  # Load environment variables from .env
@@ -122,26 +123,33 @@ class WorkerServiceServicer(worker_pb2_grpc.WorkerServiceServicer, sys_worker_pb
             
     def JoinLobby(self, request, context):
         print("JoinLobby")
+        player_role = 1
         user = request.user_id
         lobby = request.lobby_id
         print(user + " is joining lobby: " + str(lobby))
         
-        if len(CHANNELS) >= lobby + 1:
-            print("Lobby exists.")
+        for sublist in CHANNELS:
+             if sublist[1] == str(lobby):
+                print("Found it!" + sublist)
+                
+                print("Lobby exists.")
 
-            # Add player to the lobby. 
-            user_list = CHANNELS[lobby]
-            print("Lobby alreade has these players: ")
-            for user_in_list in user_list:
-                print(user_in_list, end=", ")
-            print()
-            # If player is first, let's make them the admin. 
-            if len(user_list) == 0:
-                player_role = 0
-            else:
-                player_role = 1
-            user_list.append(user)
-            print(user + " joined lobby: " + str(lobby))
+                # Add player to the lobby. 
+                user_list = sublist[1]
+                print("Lobby alreade has these players: ")
+                for user_in_list in user_list:
+                    print(user_in_list, end=", ")
+                print()
+                # If player is first, let's make them the admin. 
+                for admin_sublist in ADMINS:
+                    if admin_sublist[0] == str(lobby) and admin_sublist[1] == user:
+                        player_role = 0
+                        break
+                
+
+                print(user + " joined lobby: " + str(lobby))
+                print("Their role is " + str(player_role))
+                break
 
 
         return worker_pb2.PlayerInfo(player_role=player_role)
@@ -162,13 +170,21 @@ class WorkerServiceServicer(worker_pb2_grpc.WorkerServiceServicer, sys_worker_pb
         print("A game starts.")
         if request.start:
             return worker_pb2.SecretWords(word=secretWord)
+        
+    def NewLobby(self, request, context):
+        print("NewLobby")
+        lobby_id = request.lobby_id
+        user_id = request.user_id
+        new_list = [lobby_id, []]
+        CHANNELS.append(new_list)
+        ADMINS.append([lobby_id, user_id])
+        print("Created new lobby" + lobby_id)
+
+        return sys_worker_pb2.MasterStatus(status = "OK", desc="New lobby added.")
 
 
 # Function for initializing data structures     
 def initialize():
-    lobby0 = []
-    CHANNELS.append(lobby0)
-    
     # Get the worker's IP address
     worker_ip = socket.gethostbyname(socket.gethostname())
     print("Worker IP address:", worker_ip) # Print the worker's IP address
