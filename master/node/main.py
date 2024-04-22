@@ -75,7 +75,8 @@ class MasterServiceServicer(master_pb2_grpc.MasterServiceServicer, sys_master_pb
             return master_pb2.LobbyInfo(ip=ip, lobby_id=lobby_id)
     
     def UpdateLobby(self, request, context):
-        status, desc = ""
+        status = ""
+        desc = ""
         try:
             oldLobby = requests.get(url=DB_ADDRESS+"/lobbies/"+request.lobby_id).json()
             response = requests.put(url=DB_ADDRESS+"/lobbies/"+request.lobby_id, params={"lobby_id": request.lobby_id, "ip_address": oldLobby["ip_address"], "status": request.new_status})
