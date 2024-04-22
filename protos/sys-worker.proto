@@ -8,8 +8,8 @@ service SysWorkerService {
 }
 
 message LobbyParams {
-    string lobby_id = 1; // master send the lobby id's from master DB ### the lobby user wants to join
-    string user_id = 2; // new lobby's admin #### user who wants to join
+    int64 lobby_id = 1;
+    string user_id = 2;
 }
 
 // simple status if it worked/failed, with desc used as to explain an error
