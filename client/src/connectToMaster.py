@@ -4,6 +4,7 @@ from datetime import datetime
 
 def sendInformationToMaster(lobby_choice, USER_ID, client):
     # Create a channel stub
+    print("Here.")
     try:
         client = client
         stub = master_pb2_grpc.MasterServiceStub(client)
@@ -12,15 +13,20 @@ def sendInformationToMaster(lobby_choice, USER_ID, client):
         print(e)
         return 1
     
+    print("we have connection.")
     if lobby_choice == 1:
+        lobby_id = input("Give lobby's id: ")
+
         # Send the message to the server, specifying if creating a new lobby or joining an existing.
-        request = master_pb2.NewLobbyParameters(
-            lobby_choice=1,
+        request = master_pb2.LobbyParameters(
+            lobby_id=int(lobby_id),
             user_id=USER_ID,
         )
-        
+        print("We made request.")
         # Handle the response
-        response = stub.CreateNewLobby(request)
+        response = stub.JoinLobby(request)
+        print("Got response.")
+        print(response)
         if response:
             print("Received a response") # Debug
 
@@ -28,14 +34,13 @@ def sendInformationToMaster(lobby_choice, USER_ID, client):
             return lobby_info
     elif lobby_choice == 2:
         # Send the message to the server, specifying if creating a new lobby or joining an existing.
-        lobby_choice = input("Give lobby's id: ")
-        request = master_pb2.LobbyParameters(
-            lobby_id=int(lobby_choice),
+        request = master_pb2.NewLobbyParameters(
+            lobby_choice=2,
             user_id=USER_ID,
         )
-        
+        print("We made request.")
         # Handle the response
-        response = stub.JoinLobby(request)
+        response = stub.CreateNewLobby(request)
         if response:
             print("Received a response") # Debug
 
