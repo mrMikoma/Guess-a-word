@@ -47,10 +47,9 @@ class MasterServiceServicer(master_pb2_grpc.MasterServiceServicer, sys_master_pb
             ip = min(WORKER_LOBBIES, key=lambda x: WORKER_LOBBIES[x])
             with grpc.insecure_channel(f"{ip}:50052") as channel:
                 workerStub = sys_worker_pb2_grpc.SysWorkerServiceStub(channel)
-                print("check 1") # ALEMPI EI TOIMI 
                 print(f"lobby id: {lobby_id} #### user_id: {request.user_id}") #DEBUG
                 request = sys_worker_pb2.LobbyParams(lobby_id=lobby_id, user_id=USER_ID,)
-                print("ip:",ip) 
+                print("ip:",ip) #DEBUG
                 response = workerStub.NewLobby(request)
                 print("check 13")
                 if response.status == "OK":
@@ -59,7 +58,7 @@ class MasterServiceServicer(master_pb2_grpc.MasterServiceServicer, sys_master_pb
                     return master_pb2.LobbyInfo(ip=str(ip), lobby_id=int(lobby_id))
                 else:
                     print("Error with worker:", response.status, response.desc)
-                    return master_pb2.LobbyInfo(ip=-1, lobby_id=-1)
+                    master_pb2.LobbyInfo(ip=str(ip), lobby_id=int(lobby_id))
         except Exception as e:
             print("Error: ", e)
             return master_pb2.LobbyInfo(ip=str(ip), lobby_id=int(lobby_id))
