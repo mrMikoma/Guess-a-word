@@ -35,7 +35,7 @@ class MasterServiceServicer(master_pb2_grpc.MasterServiceServicer, sys_master_pb
             return
         return
     def CreateNewLobby(self, request, context):
-        ip, lobby_id = -1
+        ip, lobby_id = -1, -1
         try: 
             lobby_id = requests.post(url=DB_ADDRESS+"/lobbies/").json()["lobby_id"]
             
