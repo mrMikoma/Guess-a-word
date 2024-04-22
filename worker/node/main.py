@@ -12,7 +12,7 @@ import worker_pb2
 import worker_pb2_grpc
 import sys_worker_pb2
 import sys_worker_pb2_grpc
-from src import gameLogic
+from src.gameLogic import *
 
 ###
 # References:
@@ -156,10 +156,12 @@ class WorkerServiceServicer(worker_pb2_grpc.WorkerServiceServicer, sys_worker_pb
         print("StartGame")
 
         # Samuel can implement here how the secret word is decided.
+        secretWord = getWord("src/wordlist.txt")
+        print(secretWord)
 
         print("A game starts.")
         if request.start:
-            return worker_pb2.SecretWords(word=gameLogic.getWord())
+            return worker_pb2.SecretWords(word=secretWord)
 
 
 # Function for initializing data structures     
