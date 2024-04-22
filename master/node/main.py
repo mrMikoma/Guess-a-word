@@ -21,11 +21,26 @@ load_dotenv()
 
 class MasterServiceServicer(master_pb2_grpc.MasterServiceServicer, sys_master_pb2_grpc.SysMasterServiceServicer): 
     
+    def UpdateWorkers():
+        try:
+            worker_list = list(requests.get(DB_ADDRESS+"/workers/").content)
+            for worker in worker_list:
+                if worker in WORKER_LOBBIES:
+                    continue
+                else:
+                    WORKER_LOBBIES[worker]=0
+        except Exception as e:
+            print("Error Adding new workers:",e)
+        finally:
+            return
+        return
     def CreateNewLobby(self, request, context):
         ip, lobby_id = -1
         try: 
             lobby_id = requests.post(url=DB_ADDRESS+"/lobbies/").json()["lobby_id"]
             
+            # Update workers before using them
+            self.UpdateWorkers()
             # Find the worker with the smallest lobby_count
             ip = min(WORKER_LOBBIES, key=lambda x: WORKER_LOBBIES[x])
             
