@@ -75,12 +75,15 @@ class WorkerServiceServicer(worker_pb2_grpc.WorkerServiceServicer):
                             # Mark player as guessed and add points to them
                             sublist[3][request.sender_id] = 1
                             sublist[2][request.sender_id] += playerCount
+                        message = str(request.sender_id) + " has quessed correctly!"
+                    else:
+                        message = request.content
                     
                     # Store the message in Redis
                     redis_key = f"channel_messages:{request.lobby_id}"  # Key format: channel_messages:<channel_id>
                     redis_object = json.dumps({ # JSON object to store in Redis
                         "sender_id": request.sender_id,
-                        "content": request.content,
+                        "content": message,
                         "timestamp": int(time.time())
                     })
                     # ZADD for Sorted Set to store messages in order of timestamp
