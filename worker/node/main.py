@@ -26,7 +26,7 @@ MAX_WORKERS = 10
 REDIS_HOST = os.getenv('REDIS_HOST') # In docker-compose.yml, the Redis service is named "redis"
 REDIS_PASSWORD = os.getenv('REDIS_PASSWORD')
 CHANNELS = []
-CHANNELS = [[0, [], [], [], ""]] #DEBUG
+#CHANNELS = [[0, [], [], [], ""]] #DEBUG
 ADMINS = []
 DB_HOST = os.getenv('DB_HOST')
 DB_ADDRESS="http://" + DB_HOST + ":8080" # if running in docker use address of "database-adapter-1", else use "localhost:8080"
@@ -41,7 +41,7 @@ load_dotenv()  # Load environment variables from .env
 class WorkerServiceServicer(worker_pb2_grpc.WorkerServiceServicer):
         
     def SendChannelMessage(self, request, context):
-        print("#### SendChannelMessage ####")
+        print("SendChannelMessage")
         
         try: 
             # Check if the message is empty
@@ -55,27 +55,26 @@ class WorkerServiceServicer(worker_pb2_grpc.WorkerServiceServicer):
                 print("sublist:", sublist) #DEBUG
                 print("sublist[0]:", sublist[0]) #DEBUG
                 if sublist[0] == request.lobby_id:
-                    print("Found it!", sublist)
                 
-                    print("Lobby exists.")
-
                     # Connect to Redis
                     redis_client = redis.Redis(host=REDIS_HOST, port=6379, db=0, password=os.getenv('REDIS_PASSWORD'))
                     #redis_client.flushall() # Debug (Clear all keys in Redis)
 
                     # Check if message is same as the secret word
                     if request.content == sublist[4]:
+                        player_index = sublist[1].index(request.sender_id)
                         # Check if player hasn't guessed right yet
-                        if sublist[3][request.sender_id] == 0:
+                        if sublist[3][player_index] == 0:
                             playerCount = 0
                             # Count how many players haven't yet guessed right
                             for player in sublist[3]:
                                 if player == 0:
                                     playerCount += 1
                             # Mark player as guessed and add points to them
-                            sublist[3][request.sender_id] = 1
-                            sublist[2][request.sender_id] += playerCount
+                            sublist[3][player_index] = 1
+                            sublist[2][player_index] += playerCount
                         message = str(request.sender_id) + " has quessed correctly!"
+                    
                     else:
                         message = request.content
                     
@@ -86,6 +85,7 @@ class WorkerServiceServicer(worker_pb2_grpc.WorkerServiceServicer):
                         "content": message,
                         "timestamp": int(time.time())
                     })
+
                     # ZADD for Sorted Set to store messages in order of timestamp
                     redis_client.zadd(redis_key, {redis_object: int(time.time())}) # Append the message to the Redis sorted set
                     
@@ -180,23 +180,16 @@ class WorkerServiceServicer(worker_pb2_grpc.WorkerServiceServicer):
         print(user + " is joining lobby: " + str(lobby) + "...")
         
         # this loop currently has no failure handling in case no lobby was found, which breaks the client
-        print(CHANNELS)
+        
         for sublist in CHANNELS:
             print("sublist:", sublist) #DEBUG
             print("sublist[0]:", sublist[0]) #DEBUG
             if sublist[0] == lobby:
-                print("Found it!", sublist)
-                
-                print("Lobby exists.")
 
                 # Add player to the lobby. 
                 user_list = sublist[1]
                 point_list = sublist[2]
                 guess_list = sublist[3]
-                print("Lobby already has these players: ")
-                for user_in_list in user_list:
-                    print(user_in_list, end=", ")
-                print()
 
                 # If player is first, let's make them the admin. 
                 if len(user_list) == 0:
@@ -219,7 +212,7 @@ class WorkerServiceServicer(worker_pb2_grpc.WorkerServiceServicer):
         return worker_pb2.PlayerInfo(player_role=player_role)
     
     def GetStatus(self, request, context):
-        print("Get status.")
+        print("GetStatus")
         print(request.success)
         print(request.message)
         return worker_pb2.Status(success=True, message="Worker is working.")
@@ -256,6 +249,7 @@ class SysWorkerServiceServicer(sys_worker_pb2_grpc.SysWorkerServiceServicer):
         return sys_worker_pb2.MasterStatus(status = "OK", desc="New lobby added.")
     
     def CheckStatus(self, request, context):
+        print("CheckStatus")
         print("Master checked on me, telling it I'm fine")
         return sys_worker_pb2.MasterStatus(status = "OK", desc="I am still running.")
 

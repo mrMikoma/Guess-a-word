@@ -45,12 +45,10 @@ def connectWorkerNode(lobby_info, USER_ID):
     global CLIENT
     if CLIENT is None:
         try:
-            print("lobby_info:", lobby_info)
             CLIENT = grpc.insecure_channel(lobby_info[0] + ':50052')
             print(COLOR_GREEN + "\nConnection established" + COLOR_RESET)
 
             response = sendLobbyInfoToWorker(lobby_info[1], USER_ID, CLIENT)
-            print(response)
 
             return response
         except Exception as e:

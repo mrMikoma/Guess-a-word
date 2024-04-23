@@ -45,7 +45,6 @@ def receive_messages(stub, lobby_id, user_id, shutdown_event):
 
 # Send messages to the channel 
 def send_message(stub, lobby_id, user_id, shutdown_event):
-    secretWord = 'salasana'
 
     while True:
         content = input() # Get user input
