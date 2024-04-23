@@ -24,9 +24,12 @@ def sendLobbyInfoToWorker(lobby_id, USER_ID, client):
         lobby_id=lobby_id,
         user_id=USER_ID,
     )
+    print("request: ")
+    print(request)
     # Handle the response
     response = stub.JoinLobby(request)
     if response:
+        print(response)
         return response.player_role
     else:
         print(COLOR_RED + "Error: ", response + COLOR_RESET)
