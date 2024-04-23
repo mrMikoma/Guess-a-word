@@ -47,7 +47,7 @@ def main():
 
     # sleep(2)
     print("Connecting to worker node...") # Debug.
-    lobby_info[0] = 'localhost' ## current ip is from docker network, overriding
+    
     role = connectWorkerNode(lobby_info, USER_ID)
     while True:
         printGameMenu()

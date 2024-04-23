@@ -28,9 +28,9 @@ REDIS_PASSWORD = os.getenv('REDIS_PASSWORD')
 CHANNELS = []
 #CHANNELS = [[0, [], [], [], "salasana"]] #DEBUG
 ADMINS = []
-DB_HOST = os.getenv('DB_HOST', "localhost")
+DB_HOST = os.getenv('DB_HOST')
 DB_ADDRESS="http://" + DB_HOST + ":8080" # if running in docker use address of "database-adapter-1", else use "localhost:8080"
-HOST_IP = os.getenv('HOST_IP', "localhost")
+HOST_IP = os.getenv('HOST_IP')
 
 load_dotenv()  # Load environment variables from .env
 
