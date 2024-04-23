@@ -73,7 +73,7 @@ class WorkerServiceServicer(worker_pb2_grpc.WorkerServiceServicer):
                                         playerCount += 1
                                 # Mark player as guessed and add points to them
                                 sublist[3][player_index] = 1
-                                sublist[2][player_index] += playerCount
+                                sublist[2][player_index] += playerCount - 1
                             message = str(request.sender_id) + " has quessed correctly!"
                     
                     else:
@@ -225,12 +225,16 @@ class WorkerServiceServicer(worker_pb2_grpc.WorkerServiceServicer):
         secretWord = getWord("src/wordlist.txt")
         print(secretWord)
 
+        # Save the secret word in the lobby info
         lobby = int(request.lobby_id) 
         for sublist in CHANNELS:
             print("sublist:", sublist) #DEBUG
             print("sublist[0]:", sublist[0]) #DEBUG
             if sublist[0] == lobby:
                 sublist[4] = secretWord
+                # Set the guessed list so that no-one has guessed
+                for player in range(len(sublist[3])):
+                    sublist[3][player] = 0
 
         print("A game starts.")
         if request.start:
