@@ -26,7 +26,6 @@ MAX_WORKERS = 10
 REDIS_HOST = os.getenv('REDIS_HOST') # In docker-compose.yml, the Redis service is named "redis"
 REDIS_PASSWORD = os.getenv('REDIS_PASSWORD')
 CHANNELS = []
-ADMINS = []
 DB_ADDRESS="http://database-adapter-1:8080" # if running in docker use address of "database-adapter-1", else use "localhost:8080"
 
 load_dotenv()  # Load environment variables from .env
@@ -48,9 +47,14 @@ class WorkerServiceServicer(worker_pb2_grpc.WorkerServiceServicer):
             # Check if the channel exists
             print(CHANNELS) #DEBUG
             print(request.lobby_id) #DEBUG
-            for channel in CHANNELS:
-                lobby_id = channel[0]
-                if lobby_id == request.lobby_id:
+            for sublist in CHANNELS:
+                print("sublist:", sublist) #DEBUG
+                print("sublist[0]:", sublist[0]) #DEBUG
+                if sublist[0] == request.lobby_id:
+                    print("Found it!", sublist)
+                
+                    print("Lobby exists.")
+
                     # Connect to Redis
                     redis_client = redis.Redis(host=REDIS_HOST, port=6379, db=0, password=os.getenv('REDIS_PASSWORD'))
                     #redis_client.flushall() # Debug (Clear all keys in Redis)
@@ -126,12 +130,13 @@ class WorkerServiceServicer(worker_pb2_grpc.WorkerServiceServicer):
             
     def JoinLobby(self, request, context):
         print("JoinLobby")
-        player_role = 1
+
         user = str(request.user_id)
         lobby = int(request.lobby_id)
         print(user + " is joining lobby: " + str(lobby) + "...")
         
         # this loop currently has no failure handling in case no lobby was found, which breaks the client
+        print(CHANNELS)
         for sublist in CHANNELS:
             print("sublist:", sublist) #DEBUG
             print("sublist[0]:", sublist[0]) #DEBUG
@@ -146,16 +151,15 @@ class WorkerServiceServicer(worker_pb2_grpc.WorkerServiceServicer):
                 for user_in_list in user_list:
                     print(user_in_list, end=", ")
                 print()
-                sublist[1].append(user)
-                
-                # If player is first, let's make them the admin. 
-                print("Admins:", ADMINS)
-                for admin_sublist in ADMINS:
-                    if admin_sublist[0] == lobby and admin_sublist[1] == user:
-                        player_role = 0
-                        break
-                
 
+                # If player is first, let's make them the admin. 
+                if len(user_list) == 0:
+                    player_role = 0
+                else: 
+                    player_role = 1
+
+                user_list.append(user)
+                
                 print(user + " joined lobby: " + str(lobby))
                 print("Their role is " + str(player_role))
                 break
@@ -190,7 +194,6 @@ class SysWorkerServiceServicer(sys_worker_pb2_grpc.SysWorkerServiceServicer):
         user_id = str(request.user_id)
         new_list = [lobby_id, []]
         CHANNELS.append(new_list)
-        ADMINS.append([lobby_id, user_id])
         print("Created new lobby", lobby_id)
 
         return sys_worker_pb2.MasterStatus(status = "OK", desc="New lobby added.")
