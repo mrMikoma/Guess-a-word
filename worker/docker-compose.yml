@@ -47,15 +47,11 @@ services:
     # Set the network to the custom network
     networks:
       - redis_network
-      - private-comms
       
 # Networks:
 # redis_network      - a custom network for the redis services
-# private-comms      - a custom network for communication between services
 
 # Define a custom network for the database services
 networks:
   redis_network:
     driver: bridge
-  private-comms:
-    external: true

@@ -28,8 +28,9 @@ REDIS_PASSWORD = os.getenv('REDIS_PASSWORD')
 CHANNELS = []
 #CHANNELS = [[0, [], [], [], "salasana"]] #DEBUG
 ADMINS = []
-DB_HOST = os.getenv('DB_HOST', "database-adapter-1")
+DB_HOST = os.getenv('DB_HOST', "localhost")
 DB_ADDRESS="http://" + DB_HOST + ":8080" # if running in docker use address of "database-adapter-1", else use "localhost:8080"
+HOST_IP = os.getenv('HOST_IP', "localhost")
 
 load_dotenv()  # Load environment variables from .env
 
@@ -221,12 +222,11 @@ class SysWorkerServiceServicer(sys_worker_pb2_grpc.SysWorkerServiceServicer):
 # Function for initializing data structures     
 def initialize():
     # Get the worker's IP address
-    worker_ip = socket.gethostbyname(socket.gethostname())
-    print("Worker IP address:", worker_ip) # Print the worker's IP address
+    print("Worker IP address:", HOST_IP) # Print the worker's IP address
     
     try:
         # Send the worker's IP address to the database
-        response = requests.post(url=DB_ADDRESS + "/workers/?ip_address=" + worker_ip)
+        response = requests.post(url=DB_ADDRESS + "/workers/?ip_address=" + HOST_IP)
     except Exception as e:
         print("Error trying to send worker info to db:", e)
     finally:
