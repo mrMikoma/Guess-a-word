@@ -183,8 +183,9 @@ class WorkerServiceServicer(worker_pb2_grpc.WorkerServiceServicer):
                 break
             else:
                 print(str(sublist[0]),"is not the same as",str(lobby))
+                continue
 
-            return worker_pb2.PlayerInfo(player_role=player_role)
+        return worker_pb2.PlayerInfo(player_role=player_role)
     
     def GetStatus(self, request, context):
         print("Get status.")
