@@ -131,6 +131,7 @@ class WorkerServiceServicer(worker_pb2_grpc.WorkerServiceServicer):
     def JoinLobby(self, request, context):
         print("JoinLobby")
 
+        player_role = -1
         user = str(request.user_id)
         lobby = int(request.lobby_id)
         print(user + " is joining lobby: " + str(lobby) + "...")
@@ -166,7 +167,7 @@ class WorkerServiceServicer(worker_pb2_grpc.WorkerServiceServicer):
             else:
                 print(str(sublist[0]),"is not the same as",str(lobby))
 
-        return worker_pb2.PlayerInfo(player_role=player_role)
+            return worker_pb2.PlayerInfo(player_role=player_role)
     
     def GetStatus(self, request, context):
         print("Get status.")
