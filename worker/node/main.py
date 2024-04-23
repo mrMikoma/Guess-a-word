@@ -96,7 +96,7 @@ class WorkerServiceServicer(worker_pb2_grpc.WorkerServiceServicer):
                             playerCount += 1
                             
                     # Print score if necessary
-                    if playerCount > 1:
+                    if playerCount == 1:
                         message = "Everyone quessed correctly!\nHere are the results:"
                         for i in range(1, len(sublist[1])):
                             player = sublist[1][i]
