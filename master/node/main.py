@@ -45,7 +45,8 @@ class MasterServiceServicer(master_pb2_grpc.MasterServiceServicer, sys_master_pb
             self.UpdateWorkers()
             # Find the worker with the smallest lobby_count
             ip = min(WORKER_LOBBIES, key=lambda x: WORKER_LOBBIES[x])
-            with grpc.insecure_channel(f"{ip}:50052") as channel:
+            with grpc.insecure_channel(ip + ":50052") as channel:
+                print("Connection to " + ip + ":50052")
                 workerStub = sys_worker_pb2_grpc.SysWorkerServiceStub(channel)
                 print(f"lobby id: {lobby_id} #### user_id: {request.user_id}") #DEBUG
                 request = sys_worker_pb2.LobbyParams(lobby_id=lobby_id, user_id=USER_ID,)
@@ -67,7 +68,7 @@ class MasterServiceServicer(master_pb2_grpc.MasterServiceServicer, sys_master_pb
         try:
             ip = ""
             lobby_id = request.lobby_id
-            lobby = requests.get(url=DB_ADDRESS+"/lobbies/"+request.lobby_id).json()
+            lobby = requests.get(url=DB_ADDRESS+"/lobbies/"+str(request.lobby_id)).json()
             ip = lobby["ip_address"]
             return master_pb2.LobbyInfo(ip=ip, lobby_id=lobby_id)
         except Exception as e:

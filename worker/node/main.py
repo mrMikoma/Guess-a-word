@@ -35,7 +35,7 @@ load_dotenv()  # Load environment variables from .env
 
 ###
 
-class WorkerServiceServicer(worker_pb2_grpc.WorkerServiceServicer, sys_worker_pb2_grpc.SysWorkerServiceServicer):
+class WorkerServiceServicer(worker_pb2_grpc.WorkerServiceServicer):
         
     def SendChannelMessage(self, request, context):
         print("SendChannelMessage")
@@ -171,6 +171,9 @@ class WorkerServiceServicer(worker_pb2_grpc.WorkerServiceServicer, sys_worker_pb
         if request.start:
             return worker_pb2.SecretWords(word=secretWord)
         
+    
+
+class SysWorkerServiceServicer(sys_worker_pb2_grpc.SysWorkerServiceServicer):
     def NewLobby(self, request, context):
         print("NewLobby")
         lobby_id = request.lobby_id
@@ -181,7 +184,6 @@ class WorkerServiceServicer(worker_pb2_grpc.WorkerServiceServicer, sys_worker_pb
         print("Created new lobby" + lobby_id)
 
         return sys_worker_pb2.MasterStatus(status = "OK", desc="New lobby added.")
-
 
 # Function for initializing data structures     
 def initialize():
@@ -204,6 +206,7 @@ def serve():
     # Initialize the server
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=MAX_WORKERS))
     worker_pb2_grpc.add_WorkerServiceServicer_to_server(WorkerServiceServicer(), server)
+    sys_worker_pb2_grpc.add_SysWorkerServiceServicer_to_server(SysWorkerServiceServicer(), server)
     server.add_insecure_port('[::]:50052')
     server.start()
     try:
