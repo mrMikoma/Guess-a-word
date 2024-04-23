@@ -1,3 +1,4 @@
+import time
 import uvicorn 
 from fastapi import FastAPI, HTTPException
 import psycopg2

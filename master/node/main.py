@@ -22,7 +22,7 @@ def DeleteWorker(ip):
     response = requests.delete(url=DB_ADDRESS+"/workers/"+str(ip)).json()
     print("status from deleting the worker:",response["status"])
     WORKER_LOBBIES.pop(ip)
-    return
+    return response["status"]
 
 def CheckWorker(ip):
     try:
@@ -41,7 +41,7 @@ def CheckWorker(ip):
     except Exception as e:
         print("Error while checking on worker:", e)
         print(f"Deleting worker '{ip}' from list...")
-        DeleteWorker( ip=ip)
+        DeleteWorker(ip=ip)
         return "ERROR"
         
 
@@ -77,24 +77,24 @@ class MasterServiceServicer(master_pb2_grpc.MasterServiceServicer, sys_master_pb
             ip = min(WORKER_LOBBIES, key=lambda x: WORKER_LOBBIES[x])
             
             
-            with grpc.insecure_channel(ip + ":50052") as channel:
-                print("Connection to " + ip + ":50052")
-                workerStub = sys_worker_pb2_grpc.SysWorkerServiceStub(channel)
-                
-                print(f"lobby id: '"+str(lobby_id)+"' user_id: '"+request.user_id+"'") #DEBUG
-                request = sys_worker_pb2.LobbyParams(lobby_id=lobby_id, user_id=str(user_id),)
-                
-                print("ip:"+ip) #DEBUG
-                response = workerStub.NewLobby(request)
-                
-                print("check 13") #DEBUG
-                if response.status == "OK":
-                    request = requests.put(url=DB_ADDRESS+"/lobbies/"+str(lobby_id), params={"lobby_id": lobby_id, "ip_address": ip, "status": "available"})
-                    print("check 2") #DEBUG
-                    return master_pb2.LobbyInfo(ip=ip, lobby_id=lobby_id)
-                else:
-                    print("Error with worker:", response.status, response.desc)
-                    master_pb2.LobbyInfo(ip=ip, lobby_id=lobby_id)
+            channel = grpc.insecure_channel(ip + ":50052")
+            print("channel opened in '" + ip + ":50052'")
+            workerStub = sys_worker_pb2_grpc.SysWorkerServiceStub(channel)
+            
+            print(f"lobby id: '"+str(lobby_id)+"' user_id: '"+request.user_id+"'") #DEBUG
+            request = sys_worker_pb2.LobbyParams(lobby_id=lobby_id, user_id=str(user_id),)
+            
+            print("ip:"+ip) #DEBUG
+            response = workerStub.NewLobby(request)
+            channel.close()
+            print("channel closed") #DEBUG
+            if response.status == "OK":
+                request = requests.put(url=DB_ADDRESS+"/lobbies/"+str(lobby_id), params={"lobby_id": lobby_id, "ip_address": ip, "status": "available"})
+                # print("check 2") #DEBUG
+                return master_pb2.LobbyInfo(ip=ip, lobby_id=lobby_id)
+            else:
+                print("Error with worker:", response.status, response.desc)
+                master_pb2.LobbyInfo(ip=ip, lobby_id=lobby_id)
         except Exception as e:
             print("Error while creating a lobby: ", e)
             return master_pb2.LobbyInfo(ip=ip, lobby_id=lobby_id)

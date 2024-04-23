@@ -38,35 +38,38 @@ load_dotenv()  # Load environment variables from .env
 class WorkerServiceServicer(worker_pb2_grpc.WorkerServiceServicer):
         
     def SendChannelMessage(self, request, context):
-        print("SendChannelMessage")
+        print("#### SendChannelMessage ####")
         
         try: 
-            # Check if the channel exists
-            print(CHANNELS)
-            if len(CHANNELS) < request.lobby_id:
-                return worker_pb2.Status(success=False, message="Channel does not exist")
-            
             # Check if the message is empty
             if request.content == "":
                 return worker_pb2.Status(success=False, message="Message cannot be empty")
             
-            # Connect to Redis
-            redis_client = redis.Redis(host=REDIS_HOST, port=6379, db=0, password=os.getenv('REDIS_PASSWORD'))
-            #redis_client.flushall() # Debug (Clear all keys in Redis)
+            # Check if the channel exists
+            print(CHANNELS) #DEBUG
+            print(request.lobby_id) #DEBUG
+            for channel in CHANNELS:
+                lobby_id = channel[0]
+                if lobby_id == request.lobby_id:
+                    # Connect to Redis
+                    redis_client = redis.Redis(host=REDIS_HOST, port=6379, db=0, password=os.getenv('REDIS_PASSWORD'))
+                    #redis_client.flushall() # Debug (Clear all keys in Redis)
+                    
+                    # Store the message in Redis
+                    redis_key = f"channel_messages:{request.lobby_id}"  # Key format: channel_messages:<channel_id>
+                    redis_object = json.dumps({ # JSON object to store in Redis
+                        "sender_id": request.sender_id,
+                        "content": request.content,
+                        "timestamp": int(time.time())
+                    })
+                    # ZADD for Sorted Set to store messages in order of timestamp
+                    redis_client.zadd(redis_key, {redis_object: int(time.time())}) # Append the message to the Redis sorted set
+                    
+                    # Return status
+                    return worker_pb2.Status(success=True, message="Message sent successfully")
             
-            # Store the message in Redis
-            redis_key = f"channel_messages:{request.lobby_id}"  # Key format: channel_messages:<channel_id>
-            redis_object = json.dumps({ # JSON object to store in Redis
-                "sender_id": request.sender_id,
-                "content": request.content,
-                "timestamp": int(time.time())
-            })
-            # ZADD for Sorted Set to store messages in order of timestamp
-            redis_client.zadd(redis_key, {redis_object: int(time.time())}) # Append the message to the Redis sorted set
+            return worker_pb2.Status(success=False, message="Channel does not exist")
             
-            # Return status
-            return worker_pb2.Status(success=True, message="Message sent successfully")
-        
         except Exception as e:
             print(e)
             return worker_pb2.Status(success=False, message="Error occurred")
@@ -112,7 +115,7 @@ class WorkerServiceServicer(worker_pb2_grpc.WorkerServiceServicer):
                         # Store the last timestamp
                         last_timestamp = timestamp
 
-                    time.sleep(0.1)  # Sleep for 1 second before fetching the next message
+                    time.sleep(0.1)  # Sleep for 0.1 second before fetching the next message
                     
                 # Return status
                 return worker_pb2.Status(success=True, message="Channel connection closed")
@@ -124,25 +127,31 @@ class WorkerServiceServicer(worker_pb2_grpc.WorkerServiceServicer):
     def JoinLobby(self, request, context):
         print("JoinLobby")
         player_role = 1
-        user = request.user_id
-        lobby = request.lobby_id
-        print(user + " is joining lobby: " + str(lobby))
+        user = str(request.user_id)
+        lobby = int(request.lobby_id)
+        print(user + " is joining lobby: " + str(lobby) + "...")
         
+        # this loop currently has no failure handling in case no lobby was found, which breaks the client
         for sublist in CHANNELS:
-             if sublist[1] == str(lobby):
-                print("Found it!" + sublist)
+            print("sublist:", sublist) #DEBUG
+            print("sublist[0]:", sublist[0]) #DEBUG
+            if sublist[0] == lobby:
+                print("Found it!", sublist)
                 
                 print("Lobby exists.")
 
                 # Add player to the lobby. 
                 user_list = sublist[1]
-                print("Lobby alreade has these players: ")
+                print("Lobby already has these players: ")
                 for user_in_list in user_list:
                     print(user_in_list, end=", ")
                 print()
+                sublist[1].append(user)
+                
                 # If player is first, let's make them the admin. 
+                print("Admins:", ADMINS)
                 for admin_sublist in ADMINS:
-                    if admin_sublist[0] == str(lobby) and admin_sublist[1] == user:
+                    if admin_sublist[0] == lobby and admin_sublist[1] == user:
                         player_role = 0
                         break
                 
@@ -150,7 +159,8 @@ class WorkerServiceServicer(worker_pb2_grpc.WorkerServiceServicer):
                 print(user + " joined lobby: " + str(lobby))
                 print("Their role is " + str(player_role))
                 break
-
+            else:
+                print(str(sublist[0]),"is not the same as",str(lobby))
 
         return worker_pb2.PlayerInfo(player_role=player_role)
     
@@ -202,7 +212,7 @@ def initialize():
         print("Error trying to send worker info to db:", e)
     finally:
         return 0
-
+            
 def serve():
     # Initialize data structures
     initialize()

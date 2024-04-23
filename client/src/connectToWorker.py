@@ -24,7 +24,6 @@ def sendLobbyInfoToWorker(lobby_id, USER_ID, client):
         lobby_id=lobby_id,
         user_id=USER_ID,
     )
-    
     # Handle the response
     response = stub.JoinLobby(request)
     if response:

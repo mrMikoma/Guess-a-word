@@ -1,3 +1,4 @@
+from time import sleep
 from src.menu import *
 from src.connectRPC import *
 from src.connectToMaster import *
@@ -44,7 +45,9 @@ def main():
 
     # Now connect to the actual worker node/lobby with lobby_info
 
-    # print("Connecting to worker node.") # Debug.
+    # sleep(2)
+    print("Connecting to worker node...") # Debug.
+    lobby_info[0] = 'localhost' ## current ip is from docker network, overriding
     role = connectWorkerNode(lobby_info, USER_ID)
     while True:
         printGameMenu()

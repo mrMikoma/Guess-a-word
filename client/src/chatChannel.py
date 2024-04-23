@@ -36,6 +36,7 @@ def receive_messages(stub, lobby_id, user_id, shutdown_event):
                     break
         except grpc._channel._MultiThreadedRendezvous as e:        
             print(COLOR_RED + "\nChannel connection closed" + COLOR_RESET)
+            break # this stops spam after worker closes, although it doesen't close receiveMessages thread
         except Exception as e:
             print(COLOR_RED + "Error receiving messages:", e + COLOR_RESET)
             return 1
