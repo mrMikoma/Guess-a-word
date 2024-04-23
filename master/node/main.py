@@ -18,81 +18,86 @@ WORKER_LOBBIES = {} # dictionary {worker_ip:lobby_count} to track how many lobbi
 DB_ADDRESS="http://database-adapter-1:8080" # if running in docker use address of "database-adapter-1", else use "localhost:8080"
 
 load_dotenv()
+def DeleteWorker(ip):
+    response = requests.delete(url=DB_ADDRESS+"/workers/"+str(ip)).json()
+    print("status from deleting the worker:",response["status"])
+    WORKER_LOBBIES.pop(ip)
+    return
 
+def CheckWorker(ip):
+    try:
+        print(f"Checking if worker '{ip}' is alive")
+        with grpc.insecure_channel(ip + ":50052") as channel:
+            workerStub = sys_worker_pb2_grpc.SysWorkerServiceStub(channel)
+            request = sys_worker_pb2.Null()
+            response = workerStub.CheckStatus(request)
+            if response.status == "OK":
+                print(f"Worker '{ip}' is fine")
+                return "OK"
+            else:
+                print(f"Worker '{ip}' is not fine, deleting from list...")
+                DeleteWorker(ip=ip)
+                return "ERROR"
+    except Exception as e:
+        print("Error while checking on worker:", e)
+        print(f"Deleting worker '{ip}' from list...")
+        DeleteWorker( ip=ip)
+        return "ERROR"
+        
+
+def UpdateWorkers():
+    try:
+        worker_list = list(requests.get(DB_ADDRESS+"/workers/").json())
+        for worker in worker_list:
+            worker_ip = worker["ip_address"]
+            if CheckWorker(ip=worker_ip) != "OK":
+                # Worker was unavailable and was deleted
+                continue
+            if worker_ip in WORKER_LOBBIES:
+                continue
+            else:
+                WORKER_LOBBIES[worker_ip]=0
+                print(f"added new worker '{worker_ip}' to the list!")
+    except Exception as e:
+        print("Error Adding new workers:",e)
+    finally:
+        return
 class MasterServiceServicer(master_pb2_grpc.MasterServiceServicer, sys_master_pb2_grpc.SysMasterServiceServicer): 
     
-    def DeleteWorker(self, ip):
-        response = requests.delete(url=DB_ADDRESS+"/workers/"+str(ip)).json()
-        print("status from deleting the worker:",response["status"])
-        WORKER_LOBBIES.pop(ip)
-        return
-    
-    def CheckWorker(self, ip):
-        try:
-            print(f"Checking if worker '{ip}' is alive")
-            with grpc.insecure_channel(ip + ":50052") as channel:
-                workerStub = sys_worker_pb2_grpc.SysWorkerServiceStub(channel)
-                request = sys_worker_pb2.Null()
-                response = workerStub.CheckStatus(request)
-                if response.status == "OK":
-                    print(f"Worker '{ip}' is fine")
-                    return "OK"
-                else:
-                    print(f"Worker '{ip}' is not fine, deleting from list...")
-                    self.DeleteWorker(self=self, ip=ip)
-                    return "ERROR"
-        except Exception as e:
-            print("Error while checking on worker:", e)
-            print(f"Deleting worker '{ip}' from list...")
-            self.DeleteWorker(self=self, ip=ip)
-            return "ERROR"
-            
-    
-    def UpdateWorkers(self):
-        try:
-            worker_list = list(requests.get(DB_ADDRESS+"/workers/").json())
-            for worker in worker_list:
-                worker_ip = worker["ip_address"]
-                if self.CheckWorker(self=self, ip=worker_ip) != "OK":
-                    # Worker was unavailable and was deleted
-                    continue
-                if worker_ip in WORKER_LOBBIES:
-                    continue
-                else:
-                    WORKER_LOBBIES[worker_ip]=0
-                    print(f"added new worker '{worker_ip}' to the list!")
-        except Exception as e:
-            print("Error Adding new workers:",e)
-        finally:
-            return
+
     def CreateNewLobby(self, request, context):
         ip = ""
         lobby_id = -1
         try: 
-            lobby_id = requests.post(url=DB_ADDRESS+"/lobbies/").json()["lobby_id"]
-            USER_ID = request.user_id
+            lobby_id = int(requests.post(url=DB_ADDRESS+"/lobbies/").json()["lobby_id"])
+            user_id = str(request.user_id)
             # Update workers before using them
-            self.UpdateWorkers()
+            UpdateWorkers()
             # Find the worker with the smallest lobby_count
             ip = min(WORKER_LOBBIES, key=lambda x: WORKER_LOBBIES[x])
+            
+            
             with grpc.insecure_channel(ip + ":50052") as channel:
                 print("Connection to " + ip + ":50052")
                 workerStub = sys_worker_pb2_grpc.SysWorkerServiceStub(channel)
-                print(f"lobby id: {lobby_id} #### user_id: {request.user_id}") #DEBUG
-                request = sys_worker_pb2.LobbyParams(lobby_id=lobby_id, user_id=USER_ID,)
-                print("ip:",ip) #DEBUG
+                
+                print(f"lobby id: '"+str(lobby_id)+"' user_id: '"+request.user_id+"'") #DEBUG
+                request = sys_worker_pb2.LobbyParams(lobby_id=lobby_id, user_id=user_id,)
+                
+                print("ip:"+ip) #DEBUG
                 response = workerStub.NewLobby(request)
-                print("check 13")
+                
+                print("check 13") #DEBUG
                 if response.status == "OK":
-                    request = requests.put(url=DB_ADDRESS+"/lobbies/"+str(lobby_id), params={"lobby_id": lobby_id, "ip_address": ip, "status": "available"})
-                    print("check 2")
-                    return master_pb2.LobbyInfo(ip=str(ip), lobby_id=int(lobby_id))
+                    request = requests.put(url=DB_ADDRESS+"/lobbies/"+lobby_id, params={"lobby_id": lobby_id, "ip_address": ip, "status": "available"})
+                    print("check 2") #DEBUG
+                    return master_pb2.LobbyInfo(ip=ip, lobby_id=lobby_id)
                 else:
                     print("Error with worker:", response.status, response.desc)
-                    master_pb2.LobbyInfo(ip=str(ip), lobby_id=int(lobby_id))
+                    master_pb2.LobbyInfo(ip=ip, lobby_id=lobby_id)
         except Exception as e:
             print("Error: ", e)
-            return master_pb2.LobbyInfo(ip=str(ip), lobby_id=int(lobby_id))
+            return master_pb2.LobbyInfo(ip=ip, lobby_id=lobby_id)
     
     def JoinLobby(self, request, context):
         try:
@@ -123,7 +128,7 @@ class MasterServiceServicer(master_pb2_grpc.MasterServiceServicer, sys_master_pb
 
 def initialize():
     # add every worker to dict and set their lobby count to 0
-    MasterServiceServicer.UpdateWorkers(self=MasterServiceServicer)
+    UpdateWorkers()
     
 def serve():
     initialize()
