@@ -60,4 +60,5 @@ message SecretWords {
 
 message GameInfo {
   bool start = 1;
+  int64 lobby_id = 2;
 }

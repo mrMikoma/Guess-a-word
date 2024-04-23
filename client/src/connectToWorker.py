@@ -70,6 +70,7 @@ def startGame(user_id, lobby_id):
     return 0
 
 def startGameAsAdmin(user_id, lobby_id):
+    print("startGameAsAdmin")
     try:
         client = connectRPC.getClient()
         stub = worker_pb2_grpc.WorkerServiceStub(client)
@@ -77,14 +78,18 @@ def startGameAsAdmin(user_id, lobby_id):
         print(COLOR_RED + "Error: connecting to server" + COLOR_RESET)
         print(e)
         return 1
-    
+    print("Nyt ollaan tässä.")
+    print(stub)
     # Send the message to the server, specifying if creating a new lobby or joining an existing.
     request = worker_pb2.GameInfo(
         start=True,
+        lobby_id=lobby_id,
     )
-    
+    print("Request:")
+    print(request)
     # Handle the response
     response = stub.StartGame(request)
+    print(response)
     if response:
         #print("Received a response") # Debug
         print(COLOR_BLUE + "Your secret word is: " + response.word + COLOR_RESET)
