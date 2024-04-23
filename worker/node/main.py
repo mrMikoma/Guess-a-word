@@ -26,7 +26,7 @@ MAX_WORKERS = 10
 REDIS_HOST = os.getenv('REDIS_HOST') # In docker-compose.yml, the Redis service is named "redis"
 REDIS_PASSWORD = os.getenv('REDIS_PASSWORD')
 CHANNELS = []
-CHANNELS = [[0, [], [], [], ""]] #DEBUG
+#CHANNELS = [[0, [], [], [], ""]] #DEBUG
 ADMINS = []
 DB_HOST = os.getenv('DB_HOST')
 DB_ADDRESS="http://" + DB_HOST + ":8080" # if running in docker use address of "database-adapter-1", else use "localhost:8080"
@@ -61,23 +61,32 @@ class WorkerServiceServicer(worker_pb2_grpc.WorkerServiceServicer):
 
                     # Connect to Redis
                     redis_client = redis.Redis(host=REDIS_HOST, port=6379, db=0, password=os.getenv('REDIS_PASSWORD'))
+                    print("Checkpoint 1")
                     #redis_client.flushall() # Debug (Clear all keys in Redis)
 
                     # Check if message is same as the secret word
                     if request.content == sublist[4]:
+                        print("Checkpoint 1.1")
+                        player_index = sublist[1].index(request.sender_id)
                         # Check if player hasn't guessed right yet
-                        if sublist[3][request.sender_id] == 0:
+                        if sublist[3][player_index] == 0:
+                            print("Checkpoint 1.2")
                             playerCount = 0
                             # Count how many players haven't yet guessed right
                             for player in sublist[3]:
+                                print("Checkpoint 1.3")
                                 if player == 0:
                                     playerCount += 1
                             # Mark player as guessed and add points to them
-                            sublist[3][request.sender_id] = 1
-                            sublist[2][request.sender_id] += playerCount
+                            sublist[3][player_index] = 1
+                            sublist[2][player_index] += playerCount
+                            print("Checkpoint 1.4")
                         message = str(request.sender_id) + " has quessed correctly!"
+                        print("Checkpoint 1.5")
+                    
                     else:
                         message = request.content
+                    print("Checkpoint 2")
                     
                     # Store the message in Redis
                     redis_key = f"channel_messages:{request.lobby_id}"  # Key format: channel_messages:<channel_id>
@@ -86,8 +95,11 @@ class WorkerServiceServicer(worker_pb2_grpc.WorkerServiceServicer):
                         "content": message,
                         "timestamp": int(time.time())
                     })
+
+                    print("Checkpoint 3")
                     # ZADD for Sorted Set to store messages in order of timestamp
                     redis_client.zadd(redis_key, {redis_object: int(time.time())}) # Append the message to the Redis sorted set
+                    print("Checkpoint 4")
                     
                     # Return status
                     return worker_pb2.Status(success=True, message="Message sent successfully")
