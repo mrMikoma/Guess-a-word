@@ -26,7 +26,7 @@ MAX_WORKERS = 10
 REDIS_HOST = os.getenv('REDIS_HOST') # In docker-compose.yml, the Redis service is named "redis"
 REDIS_PASSWORD = os.getenv('REDIS_PASSWORD')
 CHANNELS = []
-#CHANNELS = [[0, [], [], [], "salasana"]] #DEBUG
+CHANNELS = [[0, [], [], [], ""]] #DEBUG
 ADMINS = []
 DB_HOST = os.getenv('DB_HOST')
 DB_ADDRESS="http://" + DB_HOST + ":8080" # if running in docker use address of "database-adapter-1", else use "localhost:8080"
@@ -64,17 +64,17 @@ class WorkerServiceServicer(worker_pb2_grpc.WorkerServiceServicer):
                     #redis_client.flushall() # Debug (Clear all keys in Redis)
 
                     # Check if message is same as the secret word
-                    if request.content == channel[4]:
+                    if request.content == sublist[4]:
                         # Check if player hasn't guessed right yet
-                        if channel[3][request.sender_id] == 0:
+                        if sublist[3][request.sender_id] == 0:
                             playerCount = 0
                             # Count how many players haven't yet guessed right
-                            for player in channel[3]:
+                            for player in sublist[3]:
                                 if player == 0:
                                     playerCount += 1
                             # Mark player as guessed and add points to them
-                            channel[3][request.sender_id] = 1
-                            channel[2][request.sender_id] += playerCount
+                            sublist[3][request.sender_id] = 1
+                            sublist[2][request.sender_id] += playerCount
                     
                     # Store the message in Redis
                     redis_key = f"channel_messages:{request.lobby_id}"  # Key format: channel_messages:<channel_id>
@@ -195,8 +195,16 @@ class WorkerServiceServicer(worker_pb2_grpc.WorkerServiceServicer):
     def StartGame(self, request, context):
         print("StartGame")
 
+        # Get new random word from the list
         secretWord = getWord("src/wordlist.txt")
         print(secretWord)
+
+        lobby = int(request.lobby_id)
+        for sublist in CHANNELS:
+            print("sublist:", sublist) #DEBUG
+            print("sublist[0]:", sublist[0]) #DEBUG
+            if sublist[0] == lobby:
+                sublist[4] = secretWord
 
         print("A game starts.")
         if request.start:
