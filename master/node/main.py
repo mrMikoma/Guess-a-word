@@ -24,6 +24,7 @@ class MasterServiceServicer(master_pb2_grpc.MasterServiceServicer, sys_master_pb
     def DeleteWorker(self, ip):
         response = requests.delete(url=DB_ADDRESS+"/workers/"+str(ip)).json()
         print("status from deleting the worker:",response["status"])
+        WORKER_LOBBIES.pop(ip)
         return
     
     def CheckWorker(self, ip):
