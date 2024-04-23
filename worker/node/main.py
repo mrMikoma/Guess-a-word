@@ -26,6 +26,7 @@ MAX_WORKERS = 10
 REDIS_HOST = os.getenv('REDIS_HOST') # In docker-compose.yml, the Redis service is named "redis"
 REDIS_PASSWORD = os.getenv('REDIS_PASSWORD')
 CHANNELS = []
+#CHANNELS = [[0, [], [], [], "salasana"]]
 ADMINS = []
 DB_ADDRESS="http://database-adapter-1:8080" # if running in docker use address of "database-adapter-1", else use "localhost:8080"
 
@@ -44,7 +45,7 @@ class WorkerServiceServicer(worker_pb2_grpc.WorkerServiceServicer):
             # Check if the message is empty
             if request.content == "":
                 return worker_pb2.Status(success=False, message="Message cannot be empty")
-            
+
             # Check if the channel exists
             print(CHANNELS) #DEBUG
             print(request.lobby_id) #DEBUG
@@ -54,6 +55,19 @@ class WorkerServiceServicer(worker_pb2_grpc.WorkerServiceServicer):
                     # Connect to Redis
                     redis_client = redis.Redis(host=REDIS_HOST, port=6379, db=0, password=os.getenv('REDIS_PASSWORD'))
                     #redis_client.flushall() # Debug (Clear all keys in Redis)
+
+                    # Check if message is same as the secret word
+                    if request.content == channel[4]:
+                        # Check if player hasn't guessed right yet
+                        if channel[3][request.sender_id] == 0:
+                            playerCount = 0
+                            # Count how many players haven't yet guessed right
+                            for player in channel[3]:
+                                if player == 0:
+                                    playerCount += 1
+                            # Mark player as guessed and add points to them
+                            channel[3][request.sender_id] = 1
+                            channel[2][request.sender_id] += playerCount
                     
                     # Store the message in Redis
                     redis_key = f"channel_messages:{request.lobby_id}"  # Key format: channel_messages:<channel_id>
@@ -173,7 +187,6 @@ class WorkerServiceServicer(worker_pb2_grpc.WorkerServiceServicer):
     def StartGame(self, request, context):
         print("StartGame")
 
-        # Samuel can implement here how the secret word is decided.
         secretWord = getWord("src/wordlist.txt")
         print(secretWord)
 
