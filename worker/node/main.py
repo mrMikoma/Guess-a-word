@@ -176,12 +176,12 @@ class WorkerServiceServicer(worker_pb2_grpc.WorkerServiceServicer):
 class SysWorkerServiceServicer(sys_worker_pb2_grpc.SysWorkerServiceServicer):
     def NewLobby(self, request, context):
         print("NewLobby")
-        lobby_id = request.lobby_id
-        user_id = request.user_id
+        lobby_id = int(request.lobby_id)
+        user_id = str(request.user_id)
         new_list = [lobby_id, []]
         CHANNELS.append(new_list)
         ADMINS.append([lobby_id, user_id])
-        print("Created new lobby" + lobby_id)
+        print("Created new lobby", lobby_id)
 
         return sys_worker_pb2.MasterStatus(status = "OK", desc="New lobby added.")
     

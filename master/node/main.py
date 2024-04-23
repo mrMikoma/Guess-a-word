@@ -82,21 +82,21 @@ class MasterServiceServicer(master_pb2_grpc.MasterServiceServicer, sys_master_pb
                 workerStub = sys_worker_pb2_grpc.SysWorkerServiceStub(channel)
                 
                 print(f"lobby id: '"+str(lobby_id)+"' user_id: '"+request.user_id+"'") #DEBUG
-                request = sys_worker_pb2.LobbyParams(lobby_id=lobby_id, user_id=user_id,)
+                request = sys_worker_pb2.LobbyParams(lobby_id=lobby_id, user_id=str(user_id),)
                 
                 print("ip:"+ip) #DEBUG
                 response = workerStub.NewLobby(request)
                 
                 print("check 13") #DEBUG
                 if response.status == "OK":
-                    request = requests.put(url=DB_ADDRESS+"/lobbies/"+lobby_id, params={"lobby_id": lobby_id, "ip_address": ip, "status": "available"})
+                    request = requests.put(url=DB_ADDRESS+"/lobbies/"+str(lobby_id), params={"lobby_id": lobby_id, "ip_address": ip, "status": "available"})
                     print("check 2") #DEBUG
                     return master_pb2.LobbyInfo(ip=ip, lobby_id=lobby_id)
                 else:
                     print("Error with worker:", response.status, response.desc)
                     master_pb2.LobbyInfo(ip=ip, lobby_id=lobby_id)
         except Exception as e:
-            print("Error: ", e)
+            print("Error while creating a lobby: ", e)
             return master_pb2.LobbyInfo(ip=ip, lobby_id=lobby_id)
     
     def JoinLobby(self, request, context):
@@ -107,7 +107,7 @@ class MasterServiceServicer(master_pb2_grpc.MasterServiceServicer, sys_master_pb
             ip = lobby["ip_address"]
             return master_pb2.LobbyInfo(ip=ip, lobby_id=lobby_id)
         except Exception as e:
-            print("Error: ", e)
+            print("Error while Joining a lobby: ", e)
             return master_pb2.LobbyInfo(ip=ip, lobby_id=lobby_id)
     
     def UpdateLobby(self, request, context):
@@ -122,7 +122,7 @@ class MasterServiceServicer(master_pb2_grpc.MasterServiceServicer, sys_master_pb
                 status = "ERROR"
                 desc = response.text
         except Exception as e:
-            print("Error: ", e)
+            print("Error while Updating lobby: ", e)
         finally:
             return sys_master_pb2.Status(status=status, desc=desc)
 
