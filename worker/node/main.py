@@ -168,6 +168,8 @@ class WorkerServiceServicer(worker_pb2_grpc.WorkerServiceServicer):
 
                 # Add player to the lobby. 
                 user_list = sublist[1]
+                point_list = sublist[2]
+                guess_list = sublist[3]
                 print("Lobby already has these players: ")
                 for user_in_list in user_list:
                     print(user_in_list, end=", ")
@@ -180,6 +182,9 @@ class WorkerServiceServicer(worker_pb2_grpc.WorkerServiceServicer):
                     player_role = 1
 
                 user_list.append(user)
+                point_list.append(0)
+                guess_list.append(0)
+
                 
                 print(user + " joined lobby: " + str(lobby))
                 print("Their role is " + str(player_role))
@@ -221,7 +226,7 @@ class SysWorkerServiceServicer(sys_worker_pb2_grpc.SysWorkerServiceServicer):
         print("NewLobby")
         lobby_id = int(request.lobby_id)
         user_id = str(request.user_id)
-        new_list = [lobby_id, []]
+        new_list = [lobby_id, [], [], [], ""]
         CHANNELS.append(new_list)
         print("Created new lobby", lobby_id)
 
