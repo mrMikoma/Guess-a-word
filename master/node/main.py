@@ -15,7 +15,7 @@ import requests
 MAX_WORKERS = 10
 PORT = 50051
 WORKER_LOBBIES = {} # dictionary {worker_ip:lobby_count} to track how many lobbies each worker has
-DB_HOST = os.getenv('DB_HOST', "localhost")
+DB_HOST = os.getenv('DB_HOST')  # get the database host from the environment variables DO NOT USE LOCALHOST
 DB_ADDRESS="http://" + DB_HOST + ":8080" 
 
 load_dotenv()
