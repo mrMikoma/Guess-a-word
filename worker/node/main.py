@@ -63,17 +63,18 @@ class WorkerServiceServicer(worker_pb2_grpc.WorkerServiceServicer):
                     # Check if message is same as the secret word
                     if request.content == sublist[4]:
                         player_index = sublist[1].index(request.sender_id)
-                        # Check if player hasn't guessed right yet
-                        if sublist[3][player_index] == 0:
-                            playerCount = 0
-                            # Count how many players haven't yet guessed right
-                            for player in sublist[3]:
-                                if player == 0:
-                                    playerCount += 1
-                            # Mark player as guessed and add points to them
-                            sublist[3][player_index] = 1
-                            sublist[2][player_index] += playerCount
-                        message = str(request.sender_id) + " has quessed correctly!"
+                        if player_index != 0:
+                            # Check if player hasn't guessed right yet
+                            if sublist[3][player_index] == 0:
+                                playerCount = 0
+                                # Count how many players haven't yet guessed right
+                                for player in sublist[3]:
+                                    if player == 0:
+                                        playerCount += 1
+                                # Mark player as guessed and add points to them
+                                sublist[3][player_index] = 1
+                                sublist[2][player_index] += playerCount
+                            message = str(request.sender_id) + " has quessed correctly!"
                     
                     else:
                         message = request.content
