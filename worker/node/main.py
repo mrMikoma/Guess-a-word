@@ -143,8 +143,8 @@ class WorkerServiceServicer(worker_pb2_grpc.WorkerServiceServicer):
                     # Yield the message
                     message_dict = json.loads(message)
 
-                    if message_dict["sender_id"] != request.user_id:
-                        yield worker_pb2.Message(sender_id=message_dict["sender_id"], content=message_dict["content"], timestamp=int(timestamp))
+                    #if message_dict["sender_id"] != request.user_id:
+                    yield worker_pb2.Message(sender_id=message_dict["sender_id"], content=message_dict["content"], timestamp=int(timestamp))
                     
                     # Store the last timestamp
                     last_timestamp = timestamp
@@ -157,8 +157,8 @@ class WorkerServiceServicer(worker_pb2_grpc.WorkerServiceServicer):
                     # Yield messages
                     for message, timestamp in messages:
                         message_dict = json.loads(message)
-                        if message_dict["sender_id"] != request.user_id:
-                            yield worker_pb2.Message(sender_id=message_dict["sender_id"], content=message_dict["content"], timestamp=int(timestamp))
+                        #if message_dict["sender_id"] != request.user_id:
+                        yield worker_pb2.Message(sender_id=message_dict["sender_id"], content=message_dict["content"], timestamp=int(timestamp))
                         
                         # Store the last timestamp
                         last_timestamp = timestamp
