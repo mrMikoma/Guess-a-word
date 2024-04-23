@@ -14,7 +14,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x10sys-worker.proto\x12\x06worker\"0\n\x0bLobbyParams\x12\x10\n\x08lobby_id\x18\x01 \x01(\x03\x12\x0f\n\x07user_id\x18\x02 \x01(\t\",\n\x0cMasterStatus\x12\x0e\n\x06status\x18\x01 \x01(\t\x12\x0c\n\x04\x64\x65sc\x18\x02 \x01(\t2\x8b\x01\n\x10SysWorkerService\x12\x37\n\x08NewLobby\x12\x13.worker.LobbyParams\x1a\x14.worker.MasterStatus\"\x00\x12>\n\x0fMasterJoinLobby\x12\x13.worker.LobbyParams\x1a\x14.worker.MasterStatus\"\x00\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x10sys-worker.proto\x12\x06worker\"0\n\x0bLobbyParams\x12\x10\n\x08lobby_id\x18\x01 \x01(\x03\x12\x0f\n\x07user_id\x18\x02 \x01(\t\",\n\x0cMasterStatus\x12\x0e\n\x06status\x18\x01 \x01(\t\x12\x0c\n\x04\x64\x65sc\x18\x02 \x01(\t\"\x06\n\x04Null2\xc0\x01\n\x10SysWorkerService\x12\x37\n\x08NewLobby\x12\x13.worker.LobbyParams\x1a\x14.worker.MasterStatus\"\x00\x12>\n\x0fMasterJoinLobby\x12\x13.worker.LobbyParams\x1a\x14.worker.MasterStatus\"\x00\x12\x33\n\x0b\x43heckStatus\x12\x0c.worker.Null\x1a\x14.worker.MasterStatus\"\x00\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -25,6 +25,8 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _globals['_LOBBYPARAMS']._serialized_end=76
   _globals['_MASTERSTATUS']._serialized_start=78
   _globals['_MASTERSTATUS']._serialized_end=122
-  _globals['_SYSWORKERSERVICE']._serialized_start=125
-  _globals['_SYSWORKERSERVICE']._serialized_end=264
+  _globals['_NULL']._serialized_start=124
+  _globals['_NULL']._serialized_end=130
+  _globals['_SYSWORKERSERVICE']._serialized_start=133
+  _globals['_SYSWORKERSERVICE']._serialized_end=325
 # @@protoc_insertion_point(module_scope)

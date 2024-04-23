@@ -184,6 +184,10 @@ class SysWorkerServiceServicer(sys_worker_pb2_grpc.SysWorkerServiceServicer):
         print("Created new lobby" + lobby_id)
 
         return sys_worker_pb2.MasterStatus(status = "OK", desc="New lobby added.")
+    
+    def CheckStatus(self, request, context):
+        print("Master checked on me, telling it I'm fine")
+        return sys_worker_pb2.MasterStatus(status = "OK", desc="I am still running.")
 
 # Function for initializing data structures     
 def initialize():

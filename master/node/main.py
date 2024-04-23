@@ -21,11 +21,40 @@ load_dotenv()
 
 class MasterServiceServicer(master_pb2_grpc.MasterServiceServicer, sys_master_pb2_grpc.SysMasterServiceServicer): 
     
+    def DeleteWorker(self, ip):
+        response = requests.delete(url=DB_ADDRESS+"/workers/"+str(ip)).json()
+        print("status from deleting the worker:",response["status"])
+        return
+    
+    def CheckWorker(self, ip):
+        try:
+            print(f"Checking if worker '{ip}' is alive")
+            with grpc.insecure_channel(ip + ":50052") as channel:
+                workerStub = sys_worker_pb2_grpc.SysWorkerServiceStub(channel)
+                request = sys_worker_pb2.Null()
+                response = workerStub.CheckStatus(request)
+                if response.status == "OK":
+                    print(f"Worker '{ip}' is fine")
+                    return "OK"
+                else:
+                    print(f"Worker '{ip}' is not fine, deleting from list...")
+                    self.DeleteWorker(self=self, ip=ip)
+                    return "ERROR"
+        except Exception as e:
+            print("Error while checking on worker:", e)
+            print(f"Deleting worker '{ip}' from list...")
+            self.DeleteWorker(self=self, ip=ip)
+            return "ERROR"
+            
+    
     def UpdateWorkers(self):
         try:
             worker_list = list(requests.get(DB_ADDRESS+"/workers/").json())
             for worker in worker_list:
                 worker_ip = worker["ip_address"]
+                if self.CheckWorker(self=self, ip=worker_ip) != "OK":
+                    # Worker was unavailable and was deleted
+                    continue
                 if worker_ip in WORKER_LOBBIES:
                     continue
                 else:

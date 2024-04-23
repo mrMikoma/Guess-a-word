@@ -24,6 +24,11 @@ class SysWorkerServiceStub(object):
                 request_serializer=sys__worker__pb2.LobbyParams.SerializeToString,
                 response_deserializer=sys__worker__pb2.MasterStatus.FromString,
                 )
+        self.CheckStatus = channel.unary_unary(
+                '/worker.SysWorkerService/CheckStatus',
+                request_serializer=sys__worker__pb2.Null.SerializeToString,
+                response_deserializer=sys__worker__pb2.MasterStatus.FromString,
+                )
 
 
 class SysWorkerServiceServicer(object):
@@ -41,6 +46,12 @@ class SysWorkerServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def CheckStatus(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_SysWorkerServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -52,6 +63,11 @@ def add_SysWorkerServiceServicer_to_server(servicer, server):
             'MasterJoinLobby': grpc.unary_unary_rpc_method_handler(
                     servicer.MasterJoinLobby,
                     request_deserializer=sys__worker__pb2.LobbyParams.FromString,
+                    response_serializer=sys__worker__pb2.MasterStatus.SerializeToString,
+            ),
+            'CheckStatus': grpc.unary_unary_rpc_method_handler(
+                    servicer.CheckStatus,
+                    request_deserializer=sys__worker__pb2.Null.FromString,
                     response_serializer=sys__worker__pb2.MasterStatus.SerializeToString,
             ),
     }
@@ -94,6 +110,23 @@ class SysWorkerService(object):
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/worker.SysWorkerService/MasterJoinLobby',
             sys__worker__pb2.LobbyParams.SerializeToString,
+            sys__worker__pb2.MasterStatus.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def CheckStatus(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/worker.SysWorkerService/CheckStatus',
+            sys__worker__pb2.Null.SerializeToString,
             sys__worker__pb2.MasterStatus.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

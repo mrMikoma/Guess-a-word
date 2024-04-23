@@ -5,6 +5,7 @@ package worker;
 service SysWorkerService {
     rpc NewLobby(LobbyParams) returns (MasterStatus) {} // Master asks for a worker to create new lobby
     rpc MasterJoinLobby(LobbyParams) returns (MasterStatus) {} // Master asks if user can join this lobby
+    rpc CheckStatus(Null) returns (MasterStatus) {}
 }
 
 message LobbyParams {
@@ -16,4 +17,8 @@ message LobbyParams {
 message MasterStatus {
     string status = 1;
     string desc = 2;
+}
+
+message Null {
+
 }
