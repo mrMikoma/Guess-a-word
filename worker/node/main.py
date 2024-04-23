@@ -89,6 +89,29 @@ class WorkerServiceServicer(worker_pb2_grpc.WorkerServiceServicer):
                     # ZADD for Sorted Set to store messages in order of timestamp
                     redis_client.zadd(redis_key, {redis_object: int(time.time())}) # Append the message to the Redis sorted set
                     
+                    # Check if everyone has guessed correctly
+                    playerCount = 0
+                    for player in sublist[3]:
+                        if player == 0:
+                            playerCount += 1
+                            
+                    # Print score if necessary
+                    if playerCount > 1:
+                        message = "Everyone quessed correctly!\nHere are the results:"
+                        for i in range(1, len(sublist[1])):
+                            player = sublist[1][i]
+                            points = str(sublist[2][i])
+                            message += "\n" + player + ": " + points
+                        # Store the message in Redis
+                        redis_key = f"channel_messages:{request.lobby_id}"  # Key format: channel_messages:<channel_id>
+                        redis_object = json.dumps({ # JSON object to store in Redis
+                            "sender_id": sublist[1][0],
+                            "content": message,
+                            "timestamp": int(time.time())
+                        })
+                        # ZADD for Sorted Set to store messages in order of timestamp
+                        redis_client.zadd(redis_key, {redis_object: int(time.time())}) # Append the message to the Redis sorted set
+
                     # Return status
                     return worker_pb2.Status(success=True, message="Message sent successfully")
             
@@ -208,7 +231,7 @@ class WorkerServiceServicer(worker_pb2_grpc.WorkerServiceServicer):
         secretWord = getWord("src/wordlist.txt")
         print(secretWord)
 
-        lobby = int(request.lobby_id)
+        lobby = int(request.lobby_id) 
         for sublist in CHANNELS:
             print("sublist:", sublist) #DEBUG
             print("sublist[0]:", sublist[0]) #DEBUG
