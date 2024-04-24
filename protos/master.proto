@@ -5,6 +5,7 @@ package master;
 service MasterService {
     rpc CreateNewLobby(NewLobbyParameters) returns (LobbyInfo) {} // client asks for a new lobby
     rpc JoinLobby(LobbyParameters) returns (LobbyInfo) {} // client asks to join an existing lobby
+    rpc DeleteLobby(LobbyParameters) returns (StatusForClient) {}
 }
 
 
@@ -22,4 +23,9 @@ message LobbyParameters {
 message LobbyInfo {
     string ip = 1;
     int64 lobby_id = 2;
+}
+
+message StatusForClient {
+  bool success = 1;
+  string message = 2;
 }

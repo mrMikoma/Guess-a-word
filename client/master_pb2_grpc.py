@@ -24,6 +24,11 @@ class MasterServiceStub(object):
                 request_serializer=master__pb2.LobbyParameters.SerializeToString,
                 response_deserializer=master__pb2.LobbyInfo.FromString,
                 )
+        self.DeleteLobby = channel.unary_unary(
+                '/master.MasterService/DeleteLobby',
+                request_serializer=master__pb2.LobbyParameters.SerializeToString,
+                response_deserializer=master__pb2.StatusForClient.FromString,
+                )
 
 
 class MasterServiceServicer(object):
@@ -41,6 +46,12 @@ class MasterServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def DeleteLobby(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_MasterServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -53,6 +64,11 @@ def add_MasterServiceServicer_to_server(servicer, server):
                     servicer.JoinLobby,
                     request_deserializer=master__pb2.LobbyParameters.FromString,
                     response_serializer=master__pb2.LobbyInfo.SerializeToString,
+            ),
+            'DeleteLobby': grpc.unary_unary_rpc_method_handler(
+                    servicer.DeleteLobby,
+                    request_deserializer=master__pb2.LobbyParameters.FromString,
+                    response_serializer=master__pb2.StatusForClient.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -95,5 +111,22 @@ class MasterService(object):
         return grpc.experimental.unary_unary(request, target, '/master.MasterService/JoinLobby',
             master__pb2.LobbyParameters.SerializeToString,
             master__pb2.LobbyInfo.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def DeleteLobby(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/master.MasterService/DeleteLobby',
+            master__pb2.LobbyParameters.SerializeToString,
+            master__pb2.StatusForClient.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

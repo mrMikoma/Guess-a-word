@@ -14,7 +14,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0cmaster.proto\x12\x06master\";\n\x12NewLobbyParameters\x12\x14\n\x0clobby_choice\x18\x01 \x01(\x03\x12\x0f\n\x07user_id\x18\x02 \x01(\t\"4\n\x0fLobbyParameters\x12\x10\n\x08lobby_id\x18\x01 \x01(\x03\x12\x0f\n\x07user_id\x18\x02 \x01(\t\")\n\tLobbyInfo\x12\n\n\x02ip\x18\x01 \x01(\t\x12\x10\n\x08lobby_id\x18\x02 \x01(\x03\x32\x8d\x01\n\rMasterService\x12\x41\n\x0e\x43reateNewLobby\x12\x1a.master.NewLobbyParameters\x1a\x11.master.LobbyInfo\"\x00\x12\x39\n\tJoinLobby\x12\x17.master.LobbyParameters\x1a\x11.master.LobbyInfo\"\x00\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0cmaster.proto\x12\x06master\";\n\x12NewLobbyParameters\x12\x14\n\x0clobby_choice\x18\x01 \x01(\x03\x12\x0f\n\x07user_id\x18\x02 \x01(\t\"4\n\x0fLobbyParameters\x12\x10\n\x08lobby_id\x18\x01 \x01(\x03\x12\x0f\n\x07user_id\x18\x02 \x01(\t\")\n\tLobbyInfo\x12\n\n\x02ip\x18\x01 \x01(\t\x12\x10\n\x08lobby_id\x18\x02 \x01(\x03\"3\n\x0fStatusForClient\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t2\xd0\x01\n\rMasterService\x12\x41\n\x0e\x43reateNewLobby\x12\x1a.master.NewLobbyParameters\x1a\x11.master.LobbyInfo\"\x00\x12\x39\n\tJoinLobby\x12\x17.master.LobbyParameters\x1a\x11.master.LobbyInfo\"\x00\x12\x41\n\x0b\x44\x65leteLobby\x12\x17.master.LobbyParameters\x1a\x17.master.StatusForClient\"\x00\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -27,6 +27,8 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _globals['_LOBBYPARAMETERS']._serialized_end=137
   _globals['_LOBBYINFO']._serialized_start=139
   _globals['_LOBBYINFO']._serialized_end=180
-  _globals['_MASTERSERVICE']._serialized_start=183
-  _globals['_MASTERSERVICE']._serialized_end=324
+  _globals['_STATUSFORCLIENT']._serialized_start=182
+  _globals['_STATUSFORCLIENT']._serialized_end=233
+  _globals['_MASTERSERVICE']._serialized_start=236
+  _globals['_MASTERSERVICE']._serialized_end=444
 # @@protoc_insertion_point(module_scope)

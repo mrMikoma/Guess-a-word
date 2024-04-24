@@ -239,8 +239,6 @@ class WorkerServiceServicer(worker_pb2_grpc.WorkerServiceServicer):
         print("A game starts.")
         if request.start:
             return worker_pb2.SecretWords(word=secretWord)
-        
-    
 
 class SysWorkerServiceServicer(sys_worker_pb2_grpc.SysWorkerServiceServicer):
     def NewLobby(self, request, context):

@@ -6,6 +6,7 @@ service SysWorkerService {
     rpc NewLobby(LobbyParams) returns (MasterStatus) {} // Master asks for a worker to create new lobby
     rpc MasterJoinLobby(LobbyParams) returns (MasterStatus) {} // Master asks if user can join this lobby
     rpc CheckStatus(Null) returns (MasterStatus) {}
+    rpc KillLobby(LobbyParams) returns (MasterStatus) {}
 }
 
 message LobbyParams {
