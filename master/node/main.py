@@ -143,6 +143,47 @@ class MasterServiceServicer(master_pb2_grpc.MasterServiceServicer, sys_master_pb
             print(f"returning worker with {status}: {desc}")
             return sys_master_pb2.Status(status=status, desc=desc)
 
+    def DeleteLobby(self, request, context):
+        success = False
+        message = ""
+        lobby_id = int(request.lobby_id)
+        user_id = str(request.user_id)
+        
+        # find worker ip
+        lobby = requests.get(url=DB_ADDRESS+"/lobbies/"+str(lobby_id)).json()
+        ip = lobby["ip_address"]
+        
+        # tell worker to kill lobby
+        try:
+            with grpc.insecure_channel(ip + ":50052") as channel:
+                print("channel opened in '" + ip + ":50052'")
+                workerStub = sys_worker_pb2_grpc.SysWorkerServiceStub(channel)
+                
+                print(f"Parameters for KillLobby: lobby id: '{lobby_id}' user_id: '{user_id}' ip: {ip}") #DEBUG
+                request = sys_worker_pb2.LobbyParams(lobby_id=lobby_id, user_id=user_id,)
+                response = workerStub.workerStub(request)
+                channel.close()
+            print("channel closed") #DEBUG
+        
+        # if worker no answer, continue on deleting
+        except Exception as e:
+            print("Error conneting to worker :",e)
+            pass
+    
+        # if workers says no, then don't remove and pass message along
+        if response.status == "Fail":
+            message = response.desc
+            return master_pb2.StatusForClient(success=success, message=message)
+        # If OK, got error or no answer, delete the lobby
+        else:  
+            try:
+                WORKER_LOBBIES[ip] -=1
+                dbRequest = requests.delete(url=DB_ADDRESS+"/lobbies/"+str(lobby_id)) # don't care what db says, its deleted
+                success = True
+                return master_pb2.StatusForClient(success=success, message=message)
+            except Exception as e:
+                print("Error deleting lobby:",e)
+                return master_pb2.StatusForClient(success=success, message=e)
 def initialize():
     # add every worker to dict and set their lobby count to 0
     UpdateWorkers()

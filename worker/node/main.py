@@ -258,6 +258,31 @@ class SysWorkerServiceServicer(sys_worker_pb2_grpc.SysWorkerServiceServicer):
         print("CheckStatus")
         print("Master checked on me, telling it I'm fine")
         return sys_worker_pb2.MasterStatus(status = "OK", desc="I am still running.")
+    
+    def KillLobby(self, request, context):
+        print("KillLobby")
+        status = ""
+        desc = ""
+        
+        lobby_id = int(request.lobby_id)
+        user_id = str(request.user_id)
+        
+        # loop to find lobby and kill it if user is admin
+        for channel in CHANNELS:
+            if channel[0] == lobby_id:
+                # check if player is admin since ADMINS is not used
+                player_list = channel[1]
+                if player_list.index(user_id) == 0:
+                    CHANNELS.remove(channel) # should send some notice but no time
+                    status = "OK"
+                    desc = "Successfully removed lobby by admin's request"
+                    return sys_worker_pb2.MasterStatus(status = status, desc=desc)
+                else:
+                    status = "FAIL"
+                    desc = "User is not admin/in lobby"
+                    return sys_worker_pb2.MasterStatus(status = status, desc=desc)
+                
+        return sys_worker_pb2.MasterStatus(status = status, desc=desc)
 
 # Function for initializing data structures     
 def initialize():
