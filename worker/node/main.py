@@ -63,6 +63,7 @@ class WorkerServiceServicer(worker_pb2_grpc.WorkerServiceServicer):
                     # Check if message is same as the secret word
                     if request.content == sublist[4]:
                         player_index = sublist[1].index(request.sender_id)
+                        # Check if sender is not admin
                         if player_index != 0:
                             # Check if player hasn't guessed right yet
                             if sublist[3][player_index] == 0:
@@ -75,7 +76,8 @@ class WorkerServiceServicer(worker_pb2_grpc.WorkerServiceServicer):
                                 sublist[3][player_index] = 1
                                 sublist[2][player_index] += playerCount - 1
                             message = str(request.sender_id) + " has quessed correctly!"
-                    
+                        else:
+                            message = request.content
                     else:
                         message = request.content
                     
@@ -103,6 +105,7 @@ class WorkerServiceServicer(worker_pb2_grpc.WorkerServiceServicer):
                             player = sublist[1][i]
                             points = str(sublist[2][i])
                             message += "\n" + player + ": " + points
+                        message += "\nTo start a new round, the host must type 'exit' and start again"
                         # Store the message in Redis
                         redis_key = f"channel_messages:{request.lobby_id}"  # Key format: channel_messages:<channel_id>
                         redis_object = json.dumps({ # JSON object to store in Redis
