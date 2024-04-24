@@ -45,15 +45,11 @@ services:
     # Set the network to the private network
     networks:
       - private-db
-      - private-comms
       
 # Networks:
 # private-db     - a private network for services that need access to the database
-# private-comms  - a private network for communication between services
 
 # Define a custom network for the database services
 networks:
   private-db:
     driver: bridge
-  private-comms:
-    external: true

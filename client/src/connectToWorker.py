@@ -51,8 +51,6 @@ def getStatus():
     response = stub.GetStatus(request)
     if response.success:
         #print("Received a response") # Debug
-
-        print(response)
         return response
     else:
         print(COLOR_RED + "Error: " + response.message + COLOR_RESET)
@@ -74,12 +72,12 @@ def startGameAsAdmin(user_id, lobby_id):
         print(COLOR_RED + "Error: connecting to server" + COLOR_RESET)
         print(e)
         return 1
-    
+    print(stub)
     # Send the message to the server, specifying if creating a new lobby or joining an existing.
     request = worker_pb2.GameInfo(
         start=True,
+        lobby_id=lobby_id,
     )
-    
     # Handle the response
     response = stub.StartGame(request)
     if response:

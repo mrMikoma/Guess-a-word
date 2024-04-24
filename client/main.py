@@ -37,17 +37,11 @@ def main():
             break
         elif option == "3":                            # Quit
             break
-        elif option == "1000":
-            lobby_info = ["localhost", 0]
-            break
         else:
             print(COLOR_RED + "Invalid option. Please try again." + COLOR_RESET)
 
     # Now connect to the actual worker node/lobby with lobby_info
-
-    # sleep(2)
-    print("Connecting to worker node...") # Debug.
-    lobby_info[0] = 'localhost' ## current ip is from docker network, overriding
+    
     role = connectWorkerNode(lobby_info, USER_ID)
     while True:
         printGameMenu()

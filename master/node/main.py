@@ -15,7 +15,8 @@ import requests
 MAX_WORKERS = 10
 PORT = 50051
 WORKER_LOBBIES = {} # dictionary {worker_ip:lobby_count} to track how many lobbies each worker has
-DB_ADDRESS="http://database-adapter-1:8080" # if running in docker use address of "database-adapter-1", else use "localhost:8080"
+DB_HOST = os.getenv('DB_HOST')  # get the database host from the environment variables DO NOT USE LOCALHOST
+DB_ADDRESS="http://" + DB_HOST + ":8080" 
 
 load_dotenv()
 def DeleteWorker(ip):
