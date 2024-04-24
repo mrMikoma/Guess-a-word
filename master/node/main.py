@@ -32,7 +32,7 @@ def CheckWorker(ip):
             request = sys_worker_pb2.Null()
             response = workerStub.CheckStatus(request)
             if response.status == "OK":
-                print(f"Worker '{ip}' is fine")
+                print(f"Worker '{ip}' is fine.")
                 return "OK"
             else:
                 print(f"Worker '{ip}' is not fine, deleting from list...")
@@ -54,10 +54,11 @@ def UpdateWorkers():
                 # Worker was unavailable and was deleted
                 continue
             if worker_ip in WORKER_LOBBIES:
+                print(f"Worker '{worker_ip}' is already on the list.")
                 continue
             else:
                 WORKER_LOBBIES[worker_ip]=0
-                print(f"added new worker '{worker_ip}' to the list!")
+                print(f"Added new worker '{worker_ip}' to the list!")
     except Exception as e:
         print("Error Adding new workers:",e)
     finally:
@@ -66,6 +67,7 @@ class MasterServiceServicer(master_pb2_grpc.MasterServiceServicer, sys_master_pb
     
 
     def CreateNewLobby(self, request, context):
+        print(f"Creating a lobby for '{request.user_id}'")
         ip = ""
         lobby_id = -1
         try: 
@@ -81,16 +83,16 @@ class MasterServiceServicer(master_pb2_grpc.MasterServiceServicer, sys_master_pb
             print("channel opened in '" + ip + ":50052'")
             workerStub = sys_worker_pb2_grpc.SysWorkerServiceStub(channel)
             
-            print(f"lobby id: '"+str(lobby_id)+"' user_id: '"+request.user_id+"'") #DEBUG
+            print(f"Parameters: lobby id: '"+str(lobby_id)+"' user_id: '"+request.user_id+"' "+"ip:"+ip) #DEBUG
             request = sys_worker_pb2.LobbyParams(lobby_id=lobby_id, user_id=str(user_id),)
-            
-            print("ip:"+ip) #DEBUG
             response = workerStub.NewLobby(request)
             channel.close()
             print("channel closed") #DEBUG
+            
             if response.status == "OK":
+                print("Worker is ok, finalizing lobby...")
                 request = requests.put(url=DB_ADDRESS+"/lobbies/"+str(lobby_id), params={"lobby_id": lobby_id, "ip_address": ip, "status": "available"})
-                # print("check 2") #DEBUG
+                WORKER_LOBBIES[ip] += 1
                 return master_pb2.LobbyInfo(ip=ip, lobby_id=lobby_id)
             else:
                 print("Error with worker:", response.status, response.desc)
@@ -111,11 +113,24 @@ class MasterServiceServicer(master_pb2_grpc.MasterServiceServicer, sys_master_pb
             return master_pb2.LobbyInfo(ip=ip, lobby_id=lobby_id)
     
     def UpdateLobby(self, request, context):
+        print(f"Updating info for lobby '{request.lobby_id}'")
         status = ""
         desc = ""
         try:
-            oldLobby = requests.get(url=DB_ADDRESS+"/lobbies/"+request.lobby_id).json()
-            response = requests.put(url=DB_ADDRESS+"/lobbies/"+request.lobby_id, params={"lobby_id": request.lobby_id, "ip_address": oldLobby["ip_address"], "status": request.new_status})
+            lobby_id = request.lobby_id
+            new_status = request.new_status
+            oldLobby = requests.get(url=DB_ADDRESS+"/lobbies/"+lobby_id).json()
+            worker_id = oldLobby["ip_address"] # Could also be pulled from context?
+            
+            # take appropriate action with the new status
+            if new_status == "closed":
+                print("Closing the lobby...")
+                response = requests.delete(url=DB_ADDRESS+"/lobbies/"+str(lobby_id))
+                WORKER_LOBBIES[worker_id] -= 1
+            else:
+                print(f"updating lobby with new status '{new_status}'...")
+                response = requests.put(url=DB_ADDRESS+"/lobbies/"+str(lobby_id), params={"lobby_id": lobby_id, "ip_address": worker_id, "status": new_status})
+            
             if response.status_code == 200:
                 status = "OK"
             else:
@@ -124,6 +139,7 @@ class MasterServiceServicer(master_pb2_grpc.MasterServiceServicer, sys_master_pb
         except Exception as e:
             print("Error while Updating lobby: ", e)
         finally:
+            print(f"returning worker with {status}: {desc}")
             return sys_master_pb2.Status(status=status, desc=desc)
 
 def initialize():
