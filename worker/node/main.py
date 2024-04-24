@@ -63,6 +63,7 @@ class WorkerServiceServicer(worker_pb2_grpc.WorkerServiceServicer):
                     # Check if message is same as the secret word
                     if request.content == sublist[4]:
                         player_index = sublist[1].index(request.sender_id)
+                        # Check if sender is not admin
                         if player_index != 0:
                             # Check if player hasn't guessed right yet
                             if sublist[3][player_index] == 0:
@@ -75,7 +76,8 @@ class WorkerServiceServicer(worker_pb2_grpc.WorkerServiceServicer):
                                 sublist[3][player_index] = 1
                                 sublist[2][player_index] += playerCount - 1
                             message = str(request.sender_id) + " has quessed correctly!"
-                    
+                        else:
+                            message = request.content
                     else:
                         message = request.content
                     
