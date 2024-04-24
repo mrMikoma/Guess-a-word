@@ -103,6 +103,7 @@ class WorkerServiceServicer(worker_pb2_grpc.WorkerServiceServicer):
                             player = sublist[1][i]
                             points = str(sublist[2][i])
                             message += "\n" + player + ": " + points
+                        message += "\nTo start a new round, the host must type 'exit' and start again"
                         # Store the message in Redis
                         redis_key = f"channel_messages:{request.lobby_id}"  # Key format: channel_messages:<channel_id>
                         redis_object = json.dumps({ # JSON object to store in Redis
