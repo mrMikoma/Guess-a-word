@@ -52,6 +52,7 @@ def main():
             else:
                 print(COLOR_BLUE + "Starting game:" + COLOR_RESET)
                 startGame(USER_ID, lobby_info[1])
+                sendDeleteLobbyToMaster(lobby_info[1], USER_ID)
         elif option == "2":
             disconnectServer() # Exit application.
             print(COLOR_BLUE + "\nGoodbye!" + COLOR_RESET)

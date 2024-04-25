@@ -25,6 +25,8 @@ def sendDeleteLobbyToMaster(lobby_id: int, user_id: str):
     except Exception as e:
         print("Error While deleting lobby:",e)
     return
+
+
 def connectMasterNode(choice, USER_ID):
     # Asks for the server IP
     MASTER_IP = input(COLOR_YELLOW + "Enter the server IP: " + COLOR_RESET)

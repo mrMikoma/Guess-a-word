@@ -4,8 +4,6 @@ from datetime import datetime
 import threading 
 import grpc
 
-from src.connectRPC import sendDeleteLobbyToMaster
-
 
 COLOR_GREEN = "\033[92m"  
 COLOR_YELLOW = "\033[93m"  
@@ -72,7 +70,7 @@ def send_message(stub, lobby_id, user_id, shutdown_event):
         if not response.success:
             print(COLOR_RED + "Error sending message: " + response.message + COLOR_RESET)
     
-    sendDeleteLobbyToMaster(lobby_id, user_id)
+    
     return 0
 
 
