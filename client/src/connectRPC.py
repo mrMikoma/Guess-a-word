@@ -13,6 +13,7 @@ CLIENT = None
 MASTER_IP = None
 
 def sendDeleteLobbyToMaster(lobby_id: int, user_id: str):
+    global MASTER_IP
     try:
         with grpc.insecure_channel(MASTER_IP + ':50051') as channel: # Might not work if unable to get ip
             stub = master_pb2_grpc.MasterServiceStub(channel)
@@ -29,6 +30,7 @@ def sendDeleteLobbyToMaster(lobby_id: int, user_id: str):
 
 def connectMasterNode(choice, USER_ID):
     # Asks for the server IP
+    global MASTER_IP
     MASTER_IP = input(COLOR_YELLOW + "Enter the server IP: " + COLOR_RESET)
     
     # Create a connection to the server if it does not exist
